@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test>
+	<style>
+		<global>
+			<fontfamily>Arial</fontfamily>
+			<fontweight>normal</fontweight>
+			<fontsize>12</fontsize>
+		</global>
+		<title>
+			<fontfamily>Arial</fontfamily>
+			<fontweight>bold</fontweight>
+			<fontsize>24</fontsize>
+		</title>
+		<text>
+			<fontfamily>Arial</fontfamily>
+			<fontweight>normal</fontweight>
+			<fontsize>14</fontsize>
+		</text>
+	</style>
+	
+	<intro>This is a sample test demonstrating how Test Runner works.</intro>
+	
+	<section title = "Sign up">
+		<intro>This section asks basic information about you</intro>
+		<question title = "Name" isname = "true">
+			<content>What's your name?</content>
+			<answer>
+				<blank></blank>
+			</answer>
+		</question>
+	</section>
+	
+	<section title = "Survey">
+		<intro>This is a survey</intro>
+		<question title = "Question 1: integer question">
+			<content>How many years' experience do you have with C++?</content>
+			<answer>
+				<integer min = "0" max = "100"></integer>
+			</answer>
+		</question>
+		<question title = "Question 2: single choice">
+			<content>Proficiency in C++?</content>
+			<answer>
+				<single>
+					<choice>None</choice>
+					<choice>Beginner</choice>
+					<choice>Intermediate</choice>
+					<choice>Expert</choice>
+				</single>
+			</answer>
+		</question>
+		<question title = "Question 3: multiple choices" mayskip = "true">
+			<content>What programming languages can you use?</content>
+			<answer>
+				<multiple>
+					<choice>C</choice>
+					<choice>C++</choice>
+					<choice>Java</choice>
+					<choice>Other</choice>
+				</multiple>
+			</answer>
+		</question>
+		<question title = "Question 4: fill in the blank" timeit = "true">
+			<content>What is your major?</content>
+			<answer>
+				<blank></blank>
+			</answer>
+		</question>
+	</section>
+	
+</test>
