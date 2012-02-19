@@ -262,12 +262,12 @@ void MainWindow::onNext()
 
 QString MainWindow::makeTempFileName() const {
 	return tr("TestResult")
-			+ QDateTime::currentDateTime().toString("_yyyy-MM-dd-hh:mm:ss")
+			+ QDateTime::currentDateTime().toString("_yyyy-MM-dd-hh-mm-ss")
 			+ ".txt";
 }
 
 QString MainWindow::makeResultFileName() const {
 	return userName
-			+ QDateTime::currentDateTime().toString("_yyyy-MM-dd-hh:mm:ss")
+			+ QDateTime::currentDateTime().toString("_yyyy-MM-dd-hh-mm-ss")
 			+ ".txt";
 }
