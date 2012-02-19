@@ -11,18 +11,19 @@ TEMPLATE = app
 
 
 SOURCES +=\
-    MainWindow.cpp \
-    TestPage.cpp \
-    Main.cpp
+	MainWindow.cpp \
+	TestPage.cpp \
+	Main.cpp
 
 HEADERS  += \
-    MainWindow.h \
-    TestPage.h
+	MainWindow.h \
+	TestPage.h
 
 FORMS    += \
-    MainWindow.ui
+	MainWindow.ui
 
 RESOURCES += \
-    TestRunner.qrc
+	TestRunner.qrc
 
 ICON = Images/Test.icns
+RC_FILE = TestRunner.rc

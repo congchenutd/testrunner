@@ -3,5 +3,6 @@
         <file>Images/Start.png</file>
         <file>Images/Exit.png</file>
         <file>Images/OpenTest.png</file>
+        <file>Images/Test.png</file>
     </qresource>
 </RCC>
