@@ -8,6 +8,7 @@
 #include <QTextStream>
 
 class TestPage;
+class TestLoader;
 
 class MainWindow : public QMainWindow
 {
@@ -16,6 +17,8 @@ class MainWindow : public QMainWindow
 public:
 	MainWindow(QWidget *parent = 0);
 	bool init(const QString& fileName = QString());
+	void setTitle(const QString& title);
+	void setAnswered(bool an) { answered = an; }
 
 protected:
 	virtual void closeEvent(QCloseEvent*);
@@ -26,9 +29,6 @@ private slots:
 
 private:
 	void setTestFile(const QString& fileName);
-	void loadIntro(const QString& title);
-	void loadSection();
-	void loadQuestion();                    // -->
 	void finish();                          // show end page
 	void setPage(TestPage* page);           // change page
 	void saveCurrentPage();
@@ -51,7 +51,7 @@ private:
 	bool quitSafe;    // it's saft to quit before loading and after finishing
 	bool answered;    // is any questions answered. save the result if yes
 
-	TestLoader loader;
+	TestLoader* loader;
 };
 
 #endif // MAINWINDOW_H
