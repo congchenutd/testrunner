@@ -6,6 +6,7 @@
 #include <QList>
 #include <QLabel>
 #include <QFont>
+#include <QTime>
 
 class QRadioButton;
 class QCheckBox;
@@ -13,7 +14,7 @@ class QSpinBox;
 class QLineEdit;
 
 // TestPage is like QWizardPage, hosting a question and an area for answer
-// By default, it only contains a title and a line of text
+// By default, it only contains a title and a line of text for the question
 class TestPage : public QWidget
 {
 	Q_OBJECT
@@ -24,14 +25,15 @@ public:
 	virtual ~TestPage() {}
 
 	virtual QVariant getAnswer() const = 0;
-	virtual void setFocus();   // allow inherited to set focus to widgets of input
+	virtual void setFocus();   // allow derived to set focus to widgets of input
 
 	QString toString() const;
-	bool    containsName() const { return hasName; }
+	bool    isNamePage() const { return isName; }
 
 	static void setGlobalFont(const QFont& font) { globalFont = font; }
 	static void setTitleFont (const QFont& font) { titleFont  = font; }
 	static void setTextFont  (const QFont& font) { textFont   = font; }
+	static void setDuration(const QTime& start, const QTime& end);
 
 public slots:
 	virtual bool validate() const;        // validate the answer
@@ -51,11 +53,14 @@ private:
 	QLabel text;
 	bool maySkip;   // Is this page optional
 	int  elapsed;   // How long (seconds) was spent on this page
-	bool hasName;   // Does this page contains participant name?
+	bool isName;    // Does this page contains participant name?
 
 	static QFont globalFont;   // style
 	static QFont titleFont;
 	static QFont textFont;
+
+	static QTime startTime;    // duration
+	static QTime endTime;
 };
 
 // nothing but title and text inherited from TestPage
@@ -118,7 +123,7 @@ class BlankFillingPage : public TestPage
 {
 public:
 	BlankFillingPage(const QString& title = QString(), const QString& text = QString(),
-					 bool skip = false, bool timeIt = false, bool hasName = false);
+					 bool skip = false, bool timeIt = false, bool isName = false);
 
 	virtual QVariant getAnswer() const;
 	virtual void setFocus();

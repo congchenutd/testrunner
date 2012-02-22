@@ -10,6 +10,8 @@
 QFont TestPage::globalFont;
 QFont TestPage::titleFont;
 QFont TestPage::textFont;
+QTime TestPage::startTime;
+QTime TestPage::endTime;
 
 TestPage::TestPage(const QString& ttl, const QString& tx, bool skip, bool timeIt, bool name)
 {
@@ -28,7 +30,7 @@ TestPage::TestPage(const QString& ttl, const QString& tx, bool skip, bool timeIt
 	text .setFont(textFont);
 
 	maySkip = skip;
-	hasName = name;
+	isName  = name;
 
 	elapsed = 0;
 	if(timeIt)
@@ -49,6 +51,12 @@ QString TestPage::toString() const
 	if(elapsed > 0)
 		result += "\t" + tr("%1 seconds").arg(elapsed);
 	return result;
+}
+
+void TestPage::setDuration(const QTime& start, const QTime& end)
+{
+	startTime = start;
+	endTime   = end;
 }
 
 // all subclasses should return QVariant() if the result is invalid

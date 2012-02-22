@@ -13,11 +13,13 @@ TEMPLATE = app
 SOURCES +=\
 	MainWindow.cpp \
 	TestPage.cpp \
-	Main.cpp
+	Main.cpp \
+    TestLoader.cpp
 
 HEADERS  += \
 	MainWindow.h \
-	TestPage.h
+	TestPage.h \
+    TestLoader.h
 
 FORMS    += \
 	MainWindow.ui

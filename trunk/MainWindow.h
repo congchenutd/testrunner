@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include "ui_MainWindow.h"
+#include "TestLoader.h"
 #include <QFile>
 #include <QXmlStreamReader>
 #include <QTextStream>
@@ -25,8 +26,6 @@ private slots:
 
 private:
 	void setTestFile(const QString& fileName);
-	QFont loadFont();                       // <-- load test info from xml
-	void loadStyle();
 	void loadIntro(const QString& title);
 	void loadSection();
 	void loadQuestion();                    // -->
@@ -51,6 +50,8 @@ private:
 
 	bool quitSafe;    // it's saft to quit before loading and after finishing
 	bool answered;    // is any questions answered. save the result if yes
+
+	TestLoader loader;
 };
 
 #endif // MAINWINDOW_H
