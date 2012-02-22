@@ -20,11 +20,22 @@ class TestPage : public QWidget
 	Q_OBJECT
 
 public:
+	TestPage() {}
 	TestPage(const QString& ttl = QString(), const QString& tx = QString(),
 			 bool skip = false, bool timeIt = false, bool name = false);
 	virtual ~TestPage() {}
 
-	QString getTitle() const { return title.text(); }
+	void setTitle(const QString& title);
+	void setText (const QString& text);
+	void setSkippable   (bool skip);
+	void setTimerEnabled(bool enable);
+	void setIsName      (bool name);
+	void setDuration(const QTime& start, const QTime& end);
+	void setMinimum(int min) {}                      // valid for IntegerPage
+	void setMaximum(int max) {}
+	void setChoices(const QStringList& choices) {}   // valid for single/multiple choice page
+
+	QString getTitle() const { return leTitle.text(); }
 	virtual QVariant getAnswer() const = 0;
 	virtual void setFocus();   // allow derived to set focus to widgets of input
 
@@ -34,7 +45,6 @@ public:
 	static void setGlobalFont(const QFont& font) { globalFont = font; }
 	static void setTitleFont (const QFont& font) { titleFont  = font; }
 	static void setTextFont  (const QFont& font) { textFont   = font; }
-	static void setDuration(const QTime& start, const QTime& end);
 
 public slots:
 	virtual bool validate() const;        // validate the answer
@@ -50,18 +60,17 @@ private slots:
 	void onTimer();
 
 private:
-	QLabel title;
-	QLabel text;
+	QLabel leTitle;
+	QLabel leText;
 	bool maySkip;   // Is this page optional
 	int  elapsed;   // How long (seconds) was spent on this page
 	bool isName;    // Does this page contains participant name?
+	QTime startTime;
+	QTime endTime;
 
 	static QFont globalFont;   // style
 	static QFont titleFont;
 	static QFont textFont;
-
-	static QTime startTime;    // duration
-	static QTime endTime;
 };
 
 // nothing but title and text inherited from TestPage
@@ -110,8 +119,8 @@ private:
 class IntegerPage : public TestPage
 {
 public:
-	IntegerPage(int min, int max, const QString& title = QString(),
-				const QString& text = QString(), bool skip = false, bool timeIt = false);
+	IntegerPage(int min, int max, const QString& leTitle = QString(),
+				const QString& leText = QString(), bool skip = false, bool timeIt = false);
 
 	virtual QVariant getAnswer() const;
 	virtual void setFocus();
@@ -123,7 +132,7 @@ private:
 class BlankFillingPage : public TestPage
 {
 public:
-	BlankFillingPage(const QString& title = QString(), const QString& text = QString(),
+	BlankFillingPage(const QString& leTitle = QString(), const QString& leText = QString(),
 					 bool skip = false, bool timeIt = false, bool isName = false);
 
 	virtual QVariant getAnswer() const;

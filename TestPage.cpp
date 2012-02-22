@@ -10,24 +10,22 @@
 QFont TestPage::globalFont;
 QFont TestPage::titleFont;
 QFont TestPage::textFont;
-QTime TestPage::startTime;
-QTime TestPage::endTime;
 
 TestPage::TestPage(const QString& ttl, const QString& tx, bool skip, bool timeIt, bool name)
 {
 	setLayout(new QVBoxLayout);
 	layout()->setSizeConstraint(QLayout::SetFixedSize);
 
-	layout()->addWidget(&title);
-	layout()->addWidget(&text);
-	title.setText(ttl);
-	text .setText(tx);
-	title.setHidden(ttl.isEmpty());   // empty title and text are hidden
-	text .setHidden(tx .isEmpty());
+	layout()->addWidget(&leTitle);
+	layout()->addWidget(&leText);
+	leTitle.setText(ttl);
+	leText .setText(tx);
+	leTitle.setHidden(ttl.isEmpty());   // empty title and text are hidden
+	leText .setHidden(tx .isEmpty());
 
 	setFont(globalFont);
-	title.setFont(titleFont);
-	text .setFont(textFont);
+	leTitle.setFont(titleFont);
+	leText .setFont(textFont);
 
 	maySkip = skip;
 	isName  = name;
@@ -47,16 +45,10 @@ void TestPage::setFocus() {
 
 QString TestPage::toString() const
 {
-	QString result = title.text() + "\t" + getAnswer().toString();
+	QString result = leTitle.text() + "\t" + getAnswer().toString();
 	if(elapsed > 0)
 		result += "\t" + tr("%1 seconds").arg(elapsed);
 	return result;
-}
-
-void TestPage::setDuration(const QTime& start, const QTime& end)
-{
-	startTime = start;
-	endTime   = end;
 }
 
 // all subclasses should return QVariant() if the result is invalid
@@ -78,6 +70,39 @@ void TestPage::showEvent(QShowEvent* event)
 
 void TestPage::onTimer() {
 	elapsed ++;
+}
+
+void TestPage::setTitle(const QString& title) {
+	leTitle.setText(title);
+}
+
+void TestPage::setText(const QString& text) {
+	leText.setText(text);
+}
+
+void TestPage::setSkippable(bool skip) {
+	maySkip = skip;
+}
+
+void TestPage::setTimerEnabled(bool enable)
+{
+	elapsed = 0;
+	if(enable)
+	{
+		QTimer* timer = new QTimer(this);
+		connect(timer, SIGNAL(timeout()), this, SLOT(onTimer()));
+		timer->start(1000);
+	}
+}
+
+void TestPage::setIsName(bool name) {
+	isName = name;
+}
+
+void TestPage::setDuration(const QTime& start, const QTime& end)
+{
+	startTime = start;
+	endTime   = end;
 }
 
 

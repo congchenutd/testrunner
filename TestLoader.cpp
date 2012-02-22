@@ -138,7 +138,7 @@ TestPage* TestLoader::loadQuestion()
 	}
 	else if(xml->name() == "single")
 	{
-		SingleChoicePage* page   = new SingleChoicePage(title, content, maySkip, timeIt);
+		SingleChoicePage* page = new SingleChoicePage(title, content, maySkip, timeIt);
 		while(xml->readNextStartElement() && xml->name() == "choice")
 			page->addChoice(xml->readElementText());
 		return page;
