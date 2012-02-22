@@ -14,12 +14,14 @@ SOURCES +=\
 	MainWindow.cpp \
 	TestPage.cpp \
 	Main.cpp \
-    TestLoader.cpp
+    TestLoader.cpp \
+    PageFactory.cpp
 
 HEADERS  += \
 	MainWindow.h \
 	TestPage.h \
-    TestLoader.h
+    TestLoader.h \
+    PageFactory.h
 
 FORMS    += \
 	MainWindow.ui
