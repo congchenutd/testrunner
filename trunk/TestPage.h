@@ -20,10 +20,11 @@ class TestPage : public QWidget
 	Q_OBJECT
 
 public:
-	TestPage(const QString& title = QString(), const QString& text = QString(),
+	TestPage(const QString& ttl = QString(), const QString& tx = QString(),
 			 bool skip = false, bool timeIt = false, bool name = false);
 	virtual ~TestPage() {}
 
+	QString getTitle() const { return title.text(); }
 	virtual QVariant getAnswer() const = 0;
 	virtual void setFocus();   // allow derived to set focus to widgets of input
 
