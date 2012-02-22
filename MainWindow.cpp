@@ -33,8 +33,10 @@ bool MainWindow::init(const QString& fileName)
 	return true;
 }
 
+// read the XML
 void MainWindow::setTestFile(const QString& fileName)
 {
+	// open file
 	xmlFile.setFileName(fileName);
 	if(!xmlFile.open(QFile::ReadOnly))
 	{
@@ -42,16 +44,21 @@ void MainWindow::setTestFile(const QString& fileName)
 		return;
 	}
 
+	// content correct
 	xml.setDevice(&xmlFile);
 	if(xml.readNextStartElement() && xml.name() == "test")
 	{
 		quitSafe = false;
-		ui.actionLoad->setVisible(false);
+		ui.actionLoad->setVisible(false);    // change action status
 		ui.actionQuit->setVisible(false);
 		ui.actionNext->setVisible(true);
+		loader.setXML(&xml);
 
+		// style sheet
 		if(xml.readNextStartElement() && xml.name() == "style")
-			loadStyle();
+			loader.loadStyle();
+
+		// introduction of the test
 		if(xml.readNextStartElement() && xml.name() == "intro")
 			loadIntro(tr("Introduction"));
 	}
@@ -59,13 +66,13 @@ void MainWindow::setTestFile(const QString& fileName)
 
 void MainWindow::closeEvent(QCloseEvent* event)
 {
-	// confirm if it's not safe to quit
+	// need confirmation if it's not safe to quit
 	if(!quitSafe) {
 		if(QMessageBox::warning(this, tr("Warning"), tr("Are you sure to abort the test?"),
 			QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
 		{
 			saveCurrentPage();        // don't forget current page
-			os << "\r\nUnfinished";
+			os << "\r\nUnfinished";   // Mark "Unfinished"
 		}
 		else
 			return event->ignore();   // quitting canceled
@@ -78,52 +85,16 @@ void MainWindow::closeEvent(QCloseEvent* event)
 
 }
 
+// open a file dialog for an XML file
 void MainWindow::onLoad()
 {
 	QString fileName = QFileDialog::getOpenFileName(
 						   this, tr("Open test configuration"),
 						   QDir::currentPath(), tr("Tests (*.xml);;All files (*.*)"));
 
-	activateWindow();             // recapture focus after the file dialog
+	activateWindow();             // re-gain focus after the file dialog
 	if(!fileName.isEmpty())
 		setTestFile(fileName);
-}
-
-QFont MainWindow::loadFont()
-{
-	QFont result = font();        // use system font by default
-	if(xml.readNextStartElement() && xml.name() == "fontfamily")
-		result.setFamily(xml.readElementText());
-	if(xml.readNextStartElement() && xml.name() == "fontweight") {
-		if(xml.readElementText() == "normal")
-			result.setWeight(QFont::Normal);
-		else if(xml.readElementText() == "bold")
-			result.setWeight(QFont::Bold);
-	}
-	if(xml.readNextStartElement() && xml.name() == "fontsize")
-		result.setPointSize(xml.readElementText().toInt());
-	return result;
-}
-
-void MainWindow::loadStyle()
-{
-	if(!xml.isStartElement() || xml.name() != "style")
-		return;
-
-	while(!(xml.isEndElement() && xml.name() == "style")) {
-		if(xml.readNextStartElement())
-		{
-			if(xml.name() == "global")
-				TestPage::setGlobalFont(loadFont());
-			else if(xml.name() == "title")
-			{
-				QString n = xml.name().toString();
-				TestPage::setTitleFont(loadFont());
-			}
-			else if(xml.name() == "text")
-				TestPage::setTextFont(loadFont());
-		}
-	}
 }
 
 void MainWindow::loadIntro(const QString& title)
@@ -163,6 +134,8 @@ void MainWindow::loadQuestion()
 	bool    maySkip = xml.attributes().value("mayskip").toString() == "true";
 	bool    timeIt  = xml.attributes().value("timeit") .toString() == "true";
 	bool    isName  = xml.attributes().value("isname") .toString() == "true";
+	QString start   = xml.attributes().value("start")  .toString();
+	QString end     = xml.attributes().value("end")    .toString();
 
 	if(!xml.readNextStartElement() || xml.name() != "content")
 		return;
@@ -186,7 +159,7 @@ void MainWindow::loadQuestion()
 	}
 	else if(xml.name() == "single")
 	{
-		SingleChoicePage* page = new SingleChoicePage(title, content, maySkip, timeIt);
+		SingleChoicePage* page   = new SingleChoicePage(title, content, maySkip, timeIt);
 		while(xml.readNextStartElement() && xml.name() == "choice")
 			page->addChoice(xml.readElementText());
 		setPage(page);
@@ -238,8 +211,8 @@ void MainWindow::saveCurrentPage() {
 	if(currentPage != 0)
 	{
 		os << currentPage->toString() << "\r\n";
-		if(currentPage->containsName())     // save user name
-			userName = currentPage->getAnswer().toString();
+		if(currentPage->isNamePage() && !currentPage->getAnswer().isNull())
+			userName = currentPage->getAnswer().toString();   // save user name
 	}
 }
 
