@@ -20,22 +20,18 @@ class TestPage : public QWidget
 	Q_OBJECT
 
 public:
-	TestPage() {}
-	TestPage(const QString& ttl = QString(), const QString& tx = QString(),
-			 bool skip = false, bool timeIt = false, bool name = false);
+	TestPage();
 	virtual ~TestPage() {}
 
-	void setTitle(const QString& title);
-	void setText (const QString& text);
-	void setSkippable   (bool skip);
-	void setTimerEnabled(bool enable);
-	void setIsName      (bool name);
-	void setDuration(const QTime& start, const QTime& end);
-	void setMinimum(int min) {}                      // valid for IntegerPage
-	void setMaximum(int max) {}
-	void setChoices(const QStringList& choices) {}   // valid for single/multiple choice page
+	virtual void setTitle(const QString& title);
+	virtual void setText (const QString& text);
+	virtual void setSkippable   (bool skip);
+	virtual void setTimerEnabled(bool enable);
+	virtual void setIsName      (bool name);
+	virtual void setDuration(const QTime& start, const QTime& end);
+	virtual void setValueRange(int min, int max) {}    // for IntegerPage
+	virtual void addChoice(const QString& choice) {}   // for single/multiple choice page
 
-	QString getTitle() const { return leTitle.text(); }
 	virtual QVariant getAnswer() const = 0;
 	virtual void setFocus();   // allow derived to set focus to widgets of input
 
@@ -77,9 +73,6 @@ private:
 class TextPage : public TestPage
 {
 public:
-	TextPage(const QString& title = QString(), const QString& text = QString())
-		: TestPage(title, text, true) {}
-
 	virtual QVariant getAnswer() const { return QString(); }
 	virtual bool validate() const;   // always true
 };
@@ -87,13 +80,8 @@ public:
 class SingleChoicePage : public TestPage
 {
 public:
-	SingleChoicePage(const QString& title = QString(), const QString& text = QString(),
-					 bool skip = false, bool timeIt = false)
-		: TestPage(title, text, skip, timeIt) {}
-
-	void addChoice(const QString& choice);
-
 	virtual QVariant getAnswer() const;
+	virtual void addChoice(const QString& choice);
 	virtual void setFocus();
 
 private:
@@ -103,13 +91,8 @@ private:
 class MultipleChoicePage : public TestPage
 {
 public:
-	MultipleChoicePage(const QString& title = QString(), const QString& text = QString(),
-					   bool skip = false, bool timeIt = false)
-		: TestPage(title, text, skip, timeIt) {}
-
-	void addChoice(const QString& choice);
-
 	virtual QVariant getAnswer() const;
+	virtual void addChoice(const QString& choice);
 	virtual void setFocus();
 
 private:
@@ -119,10 +102,10 @@ private:
 class IntegerPage : public TestPage
 {
 public:
-	IntegerPage(int min, int max, const QString& leTitle = QString(),
-				const QString& leText = QString(), bool skip = false, bool timeIt = false);
+	IntegerPage();
 
 	virtual QVariant getAnswer() const;
+	virtual void setValueRange(int min, int max);
 	virtual void setFocus();
 
 private:
@@ -132,8 +115,7 @@ private:
 class BlankFillingPage : public TestPage
 {
 public:
-	BlankFillingPage(const QString& leTitle = QString(), const QString& leText = QString(),
-					 bool skip = false, bool timeIt = false, bool isName = false);
+	BlankFillingPage();
 
 	virtual QVariant getAnswer() const;
 	virtual void setFocus();

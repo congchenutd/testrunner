@@ -11,32 +11,19 @@ QFont TestPage::globalFont;
 QFont TestPage::titleFont;
 QFont TestPage::textFont;
 
-TestPage::TestPage(const QString& ttl, const QString& tx, bool skip, bool timeIt, bool name)
+TestPage::TestPage()
 {
 	setLayout(new QVBoxLayout);
 	layout()->setSizeConstraint(QLayout::SetFixedSize);
 
 	layout()->addWidget(&leTitle);
 	layout()->addWidget(&leText);
-	leTitle.setText(ttl);
-	leText .setText(tx);
-	leTitle.setHidden(ttl.isEmpty());   // empty title and text are hidden
-	leText .setHidden(tx .isEmpty());
 
 	setFont(globalFont);
 	leTitle.setFont(titleFont);
 	leText .setFont(textFont);
 
-	maySkip = skip;
-	isName  = name;
-
 	elapsed = 0;
-	if(timeIt)
-	{
-		QTimer* timer = new QTimer(this);
-		connect(timer, SIGNAL(timeout()), this, SLOT(onTimer()));
-		timer->start(1000);
-	}
 }
 
 void TestPage::setFocus() {
@@ -52,8 +39,16 @@ QString TestPage::toString() const
 }
 
 // all subclasses should return QVariant() if the result is invalid
-bool TestPage::validate() const {
-	return accept(maySkip ? true : getAnswer().isValid());
+bool TestPage::validate() const
+{
+	if(maySkip)
+		return accept(true);
+
+//	if(startTime.isValid() && endTime.isValid())
+//		if(QTime::currentTime() < startTime || QTime::currentTime() > endTime.currentTime())
+//			return accept(false);
+
+	return accept(getAnswer().isValid());
 }
 
 bool TestPage::accept(bool ok) const
@@ -72,12 +67,16 @@ void TestPage::onTimer() {
 	elapsed ++;
 }
 
-void TestPage::setTitle(const QString& title) {
+void TestPage::setTitle(const QString& title)
+{
 	leTitle.setText(title);
+	leTitle.setHidden(title.isEmpty());   // empty title is hidden
 }
 
-void TestPage::setText(const QString& text) {
+void TestPage::setText(const QString& text)
+{
 	leText.setText(text);
+	leText .setHidden(text .isEmpty());   // empty text is hidden
 }
 
 void TestPage::setSkippable(bool skip) {
@@ -101,6 +100,9 @@ void TestPage::setIsName(bool name) {
 
 void TestPage::setDuration(const QTime& start, const QTime& end)
 {
+	if(!start.isValid() || !end.isValid())
+		return;
+
 	startTime = start;
 	endTime   = end;
 }
@@ -161,14 +163,16 @@ void MultipleChoicePage::setFocus() {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-IntegerPage::IntegerPage(int min, int max, const QString& title, const QString& text,
-						 bool skip, bool timeIt)
-	: TestPage(title, text, skip, timeIt)
+IntegerPage::IntegerPage()
 {
 	spinBox = new QSpinBox(this);
+	layout()->addWidget(spinBox);
+}
+
+void IntegerPage::setValueRange(int min, int max)
+{
 	spinBox->setMinimum(min);
 	spinBox->setMaximum(max);
-	layout()->addWidget(spinBox);
 }
 
 QVariant IntegerPage::getAnswer() const {
@@ -182,9 +186,7 @@ void IntegerPage::setFocus()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-BlankFillingPage::BlankFillingPage(const QString &title, const QString &text,
-								   bool skip, bool timeIt, bool name)
-	: TestPage(title, text, skip, timeIt, name)
+BlankFillingPage::BlankFillingPage()
 {
 	lineEdit = new QLineEdit(this);
 	layout()->addWidget(lineEdit);

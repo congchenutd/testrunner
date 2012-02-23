@@ -84,36 +84,27 @@ void MainWindow::setTestFile(const QString& fileName)
 	}
 
 	// content correct
-	xml.setDevice(&xmlFile);
-	if(xml.readNextStartElement() && xml.name() == "test")
+	if(loader->openXMLFile(xmlFile))
 	{
 		quitSafe = false;
-		ui.actionLoad->setVisible(false);    // change action status
+		ui.actionLoad->setVisible(false);     // change action status
 		ui.actionQuit->setVisible(false);
 		ui.actionNext->setVisible(true);
-
-		loader->setXML(&xml);
-		setPage(loader->loadInitialization());   // style and intro
+		setPage(loader->loadNext());          // style and intro
 	}
 }
 
 void MainWindow::onNext()
 {
-	setPage(loader->loadNext());   // load a section or question
+	setPage(loader->loadNext());          // load a section or question
 
-	if(xml.atEnd())                // end of xml
-		finish();
-}
-
-// show the finish page
-void MainWindow::finish()
-{
-	quitSafe = true;
-	ui.actionNext->setVisible(false);
-	ui.actionQuit->setVisible(true);
-	setTitle("Finished");
-	setPage(new TextPage(tr("Finished"),
-						 tr("Thank you for your cooperation! You may quit the test now.")));
+	if(loader->atEnd())                   // end of xml
+	{
+		quitSafe = true;
+		ui.actionNext->setVisible(false);
+		ui.actionQuit->setVisible(true);
+		setPage(loader->loadEndPage());   // show the end page
+	}
 }
 
 void MainWindow::setPage(TestPage *page)
