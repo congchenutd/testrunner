@@ -107,7 +107,7 @@ void MainWindow::onNext()
 	}
 }
 
-void MainWindow::setPage(TestPage *page)
+void MainWindow::setPage(TestPage* page)
 {
 	if(page == 0)
 		return;
@@ -123,7 +123,7 @@ void MainWindow::setPage(TestPage *page)
 	currentPage = page;
 	setCentralWidget(page);
 
-	connect(page, SIGNAL(valid(bool)), ui.actionNext, SLOT(setEnabled(bool)));
+	connect(currentPage, SIGNAL(valid(bool)), ui.actionNext, SLOT(setEnabled(bool)));
 	currentPage->validate();    // will enable/disable the "Next" button
 }
 

@@ -17,8 +17,9 @@ class MainWindow : public QMainWindow
 public:
 	MainWindow(QWidget *parent = 0);
 	bool init(const QString& fileName = QString());
-	void setTitle(const QString& title);
-	void setAnswered(bool an) { answered = an; }
+
+	void setTitle(const QString& title);               // <- called by loader
+	void setAnswered(bool an) { answered = an; }       // ->
 
 protected:
 	virtual void closeEvent(QCloseEvent*);
