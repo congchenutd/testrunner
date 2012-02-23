@@ -23,20 +23,21 @@ public:
 	TestPage();
 	virtual ~TestPage() {}
 
-	virtual void setTitle(const QString& title);
-	virtual void setText (const QString& text);
-	virtual void setSkippable   (bool skip);
-	virtual void setTimerEnabled(bool enable);
-	virtual void setIsName      (bool name);
-	virtual void setDuration(const QTime& start, const QTime& end);
-	virtual void setValueRange(int min, int max) {}    // for IntegerPage
-	virtual void addChoice(const QString& choice) {}   // for single/multiple choice page
+	void setTitle(const QString& title);
+	void setText (const QString& text);
+	void setSkippable   (bool skip) { maySkip = skip; }
+	void setTimerEnabled(bool enable);
+	void setDuration(const QTime& start, const QTime& end);
+	QString toString() const;
+
+	virtual void setIsName    (bool)           {}      // for BlankFillingPage
+	virtual void setValueRange(int, int)       {}      // for IntegerPage
+	virtual void addChoice    (const QString&) {}      // for single/multiple choice page
+	virtual bool isNamePage() const { return false; }  // for BlankFillingPage
 
 	virtual QVariant getAnswer() const = 0;
-	virtual void setFocus();   // allow derived to set focus to widgets of input
+	virtual void setFocus();   // allow derived to set focus to input widgets
 
-	QString toString() const;
-	bool    isNamePage() const { return isName; }
 
 	static void setGlobalFont(const QFont& font) { globalFont = font; }
 	static void setTitleFont (const QFont& font) { titleFont  = font; }
@@ -58,9 +59,8 @@ private slots:
 private:
 	QLabel leTitle;
 	QLabel leText;
-	bool maySkip;   // Is this page optional
-	int  elapsed;   // How long (seconds) was spent on this page
-	bool isName;    // Does this page contains participant name?
+	bool maySkip;     // Is this page optional
+	int  elapsed;     // How long (seconds) was spent on this page
 	QTime startTime;
 	QTime endTime;
 
@@ -119,9 +119,12 @@ public:
 
 	virtual QVariant getAnswer() const;
 	virtual void setFocus();
+	virtual void setIsName(bool name) { isName = name; }
+	virtual bool isNamePage() const { return isName; }
 
 private:
 	QLineEdit* lineEdit;
+	bool isName;            // Does this page contains participant name?
 };
 
 #endif // TESTPAGE_H

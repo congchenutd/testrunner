@@ -23,6 +23,7 @@ TestPage::TestPage()
 	leTitle.setFont(titleFont);
 	leText .setFont(textFont);
 
+	maySkip = false;
 	elapsed = 0;
 }
 
@@ -38,7 +39,6 @@ QString TestPage::toString() const
 	return result;
 }
 
-// all subclasses should return QVariant() if the result is invalid
 bool TestPage::validate() const
 {
 	if(maySkip)
@@ -48,6 +48,7 @@ bool TestPage::validate() const
 //		if(QTime::currentTime() < startTime || QTime::currentTime() > endTime.currentTime())
 //			return accept(false);
 
+	// getAnswer() should return QVariant() if the result is invalid
 	return accept(getAnswer().isValid());
 }
 
@@ -76,11 +77,7 @@ void TestPage::setTitle(const QString& title)
 void TestPage::setText(const QString& text)
 {
 	leText.setText(text);
-	leText .setHidden(text .isEmpty());   // empty text is hidden
-}
-
-void TestPage::setSkippable(bool skip) {
-	maySkip = skip;
+	leText.setHidden(text.isEmpty());     // empty text is hidden
 }
 
 void TestPage::setTimerEnabled(bool enable)
@@ -92,10 +89,6 @@ void TestPage::setTimerEnabled(bool enable)
 		connect(timer, SIGNAL(timeout()), this, SLOT(onTimer()));
 		timer->start(1000);
 	}
-}
-
-void TestPage::setIsName(bool name) {
-	isName = name;
 }
 
 void TestPage::setDuration(const QTime& start, const QTime& end)
@@ -188,6 +181,7 @@ void IntegerPage::setFocus()
 /////////////////////////////////////////////////////////////////////////////////////////
 BlankFillingPage::BlankFillingPage()
 {
+	isName = false;
 	lineEdit = new QLineEdit(this);
 	layout()->addWidget(lineEdit);
 	connect(lineEdit, SIGNAL(textEdited(QString)), this, SLOT(validate())); // auto validate
