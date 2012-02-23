@@ -29,7 +29,6 @@ private slots:
 
 private:
 	void setTestFile(const QString& fileName);
-	void finish();                          // show end page
 	void setPage(TestPage* page);           // change page
 	void saveCurrentPage();
 
@@ -39,11 +38,10 @@ private:
 private:
 	Ui::MainWindow ui;
 
-	QFile            xmlFile;        // for input
-	QXmlStreamReader xml;
-	TestPage*        currentPage;
+	QFile       xmlFile;        // for input
+	TestPage*   currentPage;
 
-	QString     userName;            // for output
+	QString     userName;       // for output
 	QString     tempFileName;
 	QFile       tempFile;
 	QTextStream os;

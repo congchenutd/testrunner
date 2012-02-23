@@ -2,72 +2,70 @@
 #include "TestPage.h"
 #include "TestPage.h"
 #include "MainWindow.h"
-#include <QXmlStreamReader>
 #include <QApplication>
 
+bool TestLoader::openXMLFile(QFile& xmlFile)
+{
+	xml.setDevice(&xmlFile);
+	return xml.readNextStartElement() && xml.name() == "test";
+}
+
+bool TestLoader::atEnd() {
+	return xml.atEnd();
+}
+
 // A font section must contain fontfamily, fontweight and fontsize
-QFont TestLoader::loadFont() const
+QFont TestLoader::loadFont()
 {
 	QFont result = qApp->font();        // use system font by default
-	if(xml->readNextStartElement() && xml->name() == "fontfamily")
-		result.setFamily(xml->readElementText());
-	if(xml->readNextStartElement() && xml->name() == "fontweight") {
-		if(xml->readElementText() == "normal")
+	if(xml.readNextStartElement() && xml.name() == "fontfamily")
+		result.setFamily(xml.readElementText());
+	if(xml.readNextStartElement() && xml.name() == "fontweight") {
+		if(xml.readElementText() == "normal")
 			result.setWeight(QFont::Normal);
-		else if(xml->readElementText() == "bold")
+		else if(xml.readElementText() == "bold")
 			result.setWeight(QFont::Bold);
 	}
-	if(xml->readNextStartElement() && xml->name() == "fontsize")
-		result.setPointSize(xml->readElementText().toInt());
+	if(xml.readNextStartElement() && xml.name() == "fontsize")
+		result.setPointSize(xml.readElementText().toInt());
 	return result;
 }
 
-void TestLoader::loadStyle() const
+void TestLoader::loadStyle()
 {
-	if(!xml->isStartElement() || xml->name() != "style")
+	if(!xml.isStartElement() || xml.name() != "style")
 		return;
 
-	while(!(xml->isEndElement() && xml->name() == "style")) {
-		if(xml->readNextStartElement())
+	// till </style>
+	while(!(xml.isEndElement() && xml.name() == "style")) {
+		if(xml.readNextStartElement())
 		{
-			if(xml->name() == "global")
+			if(xml.name() == "global")
 				TestPage::setGlobalFont(loadFont());
-			else if(xml->name() == "title")
-			{
-				QString n = xml->name().toString();
+			else if(xml.name() == "title")
 				TestPage::setTitleFont(loadFont());
-			}
-			else if(xml->name() == "text")
+			else if(xml.name() == "text")
 				TestPage::setTextFont(loadFont());
 		}
 	}
 }
 
-TestPage *TestLoader::loadInitialization()
+TestPage* TestLoader::loadNext()
 {
-	while(xml->readNextStartElement())
+	while(!xml.atEnd())
 	{
-		if(xml->name() == "style")
-			loadStyle();
-		else if(xml->name() == "intro")
-			return loadIntro(tr("Introduction"));
-		else if(xml->name() == "section")
-			return loadNext();
-	}
-	return 0;
-}
-
-TestPage *TestLoader::loadNext()
-{
-	while(!xml->atEnd())
-	{
-		if(xml->isStartElement()) {
-			if(xml->name() == "section")        // a new section
+		if(xml.isStartElement())
+		{
+			if(xml.name() == "style")
+				loadStyle();                   // does not return
+			else if(xml.name() == "intro")
+				return loadIntro(tr("Introduction"));
+			if(xml.name() == "section")        // a new section
 				return loadSection();
-			else if(xml->name() == "question")  // next question in the same section
+			else if(xml.name() == "question")  // next question in the same section
 				return loadQuestion();
 		}
-		xml->readNextStartElement();
+		xml.readNextStartElement();
 	}
 	return 0;
 }
@@ -75,30 +73,28 @@ TestPage *TestLoader::loadNext()
 // a test or a section can have a introduction
 TestPage* TestLoader::loadIntro(const QString& title)
 {
-	if(!xml->isStartElement() || xml->name() != "intro")
+	if(!xml.isStartElement() || xml.name() != "intro")
 		return 0;
 
-	QString introText = xml->readElementText();
-	if(introText.isEmpty())
-		return 0;
-
-	return new TextPage(title, introText);
+	QString introText = xml.readElementText();
+	return introText.isEmpty() ? 0
+							   : createTextPage(title, introText);
 }
 
 TestPage* TestLoader::loadSection()
 {
-	if(!xml->isStartElement() || xml->name() != "section")
+	if(!xml.isStartElement() || xml.name() != "section")
 		return 0;
 
-	QString title = xml->attributes().value("title").toString();
+	QString title = xml.attributes().value("title").toString();
 	if(title.isEmpty())
 		title = tr("Section");
 	mainWindow->setTitle(title);
 
-	if(xml->readNextStartElement()) {
-		if(xml->name() == "intro")
+	if(xml.readNextStartElement()) {
+		if(xml.name() == "intro")
 			return loadIntro(title);
-		else if(xml->name() == "question")
+		else if(xml.name() == "question")
 			return loadQuestion();
 	}
 	return 0;
@@ -106,53 +102,76 @@ TestPage* TestLoader::loadSection()
 
 TestPage* TestLoader::loadQuestion()
 {
-	if(!xml->isStartElement() || xml->name() != "question")
+	if(!xml.isStartElement() || xml.name() != "question")
 		return 0;
 
-	QString title   = xml->attributes().value("title")  .toString();
-	bool    maySkip = xml->attributes().value("mayskip").toString() == "true";
-	bool    timeIt  = xml->attributes().value("timeit") .toString() == "true";
-	bool    isName  = xml->attributes().value("isname") .toString() == "true";
-//	QString start   = xml->attributes().value("start")  .toString();
-//	QString end     = xml->attributes().value("end")    .toString();
+	// attributes of the question
+	QString title   = xml.attributes().value("title")  .toString();
+	QString start   = xml.attributes().value("start")  .toString();
+	QString end     = xml.attributes().value("end")    .toString();
+	bool    maySkip = xml.attributes().value("mayskip").toString() == "true";
+	bool    timeIt  = xml.attributes().value("timeit") .toString() == "true";
+	bool    isName  = xml.attributes().value("isname") .toString() == "true";
 
-	if(!xml->readNextStartElement() || xml->name() != "content")
+	if(!xml.readNextStartElement() || xml.name() != "content")
 		return 0;
-
-	QString content = xml->readElementText();
+	QString content = xml.readElementText();
 	if(content.isEmpty())
 		return 0;
 
-	if(!xml->readNextStartElement() || xml->name() != "answer")
+	if(!xml.readNextStartElement() || xml.name() != "answer")
 		return 0;
-
-	if(!xml->readNextStartElement())
+	if(!xml.readNextStartElement())
 		return 0;
-
 	mainWindow->setAnswered(true);
-	if(xml->name() == "integer")
-	{
-		int min = xml->attributes().value("min").toString().toInt();
-		int max = xml->attributes().value("max").toString().toInt();
-		return new IntegerPage(min, max, title, content, maySkip, timeIt);
-	}
-	else if(xml->name() == "single")
-	{
-		SingleChoicePage* page = new SingleChoicePage(title, content, maySkip, timeIt);
-		while(xml->readNextStartElement() && xml->name() == "choice")
-			page->addChoice(xml->readElementText());
-		return page;
-	}
-	else if(xml->name() == "multiple")
-	{
-		MultipleChoicePage* page = new MultipleChoicePage(title, content, maySkip, timeIt);
-		while(xml->readNextStartElement() && xml->name() == "choice")
-			page->addChoice(xml->readElementText());
-		return page;
-	}
-	else if(xml->name() == "blank") {
-		return new BlankFillingPage(title, content, maySkip, timeIt, isName);
-	}
 
-	return 0;
+	// attributes of answers
+	int min = xml.attributes().value("min").toString().toInt();
+	int max = xml.attributes().value("max").toString().toInt();
+
+	// prepare the page with the question and the answer area
+	QString pageName = xml.name().toString();
+	TestPage* page = createPage(pageName);
+	page->setTitle(title);
+	page->setText(content);
+	page->setValueRange(min, max);
+	page->setSkippable(maySkip);
+	page->setTimerEnabled(timeIt);
+	page->setIsName(isName);
+	page->setDuration(QTime::fromString(start, "hh:mm:ss"),
+					  QTime::fromString(end,   "hh:mm:ss"));
+	if(pageName == "single" || pageName == "multiple") {
+		while(xml.readNextStartElement() && xml.name() == "choice")
+			page->addChoice(xml.readElementText());
+	}
+	return page;
+}
+
+TestPage *TestLoader::loadEndPage()
+{
+	mainWindow->setTitle(tr("Finished"));
+	return createTextPage(tr("Finished"),
+						  tr("Thank you for your cooperation! You may quit the test now."));
+}
+
+// simple factory
+TestPage *TestLoader::createPage(const QString& pageName)
+{
+	if(pageName == "integer")
+		return new IntegerPage;
+	else if(pageName == "single")
+		return new SingleChoicePage;
+	else if(pageName == "multiple")
+		return new MultipleChoicePage;
+	else if(pageName == "blank")
+		return new BlankFillingPage;
+	return new TextPage;
+}
+
+TestPage* TestLoader::createTextPage(const QString& title, const QString& text)
+{
+	TestPage* page = new TextPage;
+	page->setTitle(title);
+	page->setText(text);
+	return page;
 }

@@ -2,29 +2,33 @@
 #define TESTLOADER_H
 
 #include <QFont>
+#include <QXmlStreamReader>
 
-class QXmlStreamReader;
 class TestPage;
 class MainWindow;
+class QFile;
 
 // Parse the xml file and create pages
 class TestLoader : public QObject
 {
 public:
 	TestLoader(MainWindow* mainWnd) : mainWindow(mainWnd) {}
-	void      setXML(QXmlStreamReader* x) { xml = x; }
-	void      loadStyle() const;
-	TestPage* loadInitialization();              // anything before sections
-	TestPage* loadNext();                        // next question or section
+	bool      openXMLFile(QFile& fileName);
+	bool      atEnd();
+	void      loadStyle();
+	TestPage* loadNext();                        // next element
 	TestPage* loadIntro(const QString& title);   // intro of a section or test
 	TestPage* loadSection();
 	TestPage* loadQuestion();
+	TestPage* loadEndPage();
 
 private:
-	QFont loadFont() const;
+	QFont loadFont();
+	TestPage* createPage(const QString& pageName);
+	TestPage* createTextPage(const QString& title, const QString& text);  // for convenience
 
 private:
-	QXmlStreamReader* xml;
+	QXmlStreamReader xml;
 	MainWindow* mainWindow;
 };
 
