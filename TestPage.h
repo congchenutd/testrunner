@@ -29,6 +29,7 @@ public:
 	void setTimerEnabled(bool enable);
 	void setDuration(const QTime& start, const QTime& end);
 	QString toString() const;
+	void finalize();
 
 	virtual void setIsName    (bool)           {}      // for BlankFillingPage
 	virtual void setValueRange(int, int)       {}      // for IntegerPage
@@ -37,7 +38,6 @@ public:
 
 	virtual QVariant getAnswer() const = 0;
 	virtual void setFocus();   // allow derived to set focus to input widgets
-
 
 	static void setGlobalFont(const QFont& font) { globalFont = font; }
 	static void setTitleFont (const QFont& font) { titleFont  = font; }
@@ -57,8 +57,8 @@ private slots:
 	void onTimer();
 
 private:
-	QLabel leTitle;
-	QLabel leText;
+	QLabel* leTitle;
+	QLabel* leText;
 	bool maySkip;     // Is this page optional
 	int  elapsed;     // How long (seconds) was spent on this page
 	QTime startTime;

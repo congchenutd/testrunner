@@ -13,15 +13,19 @@ QFont TestPage::textFont;
 
 TestPage::TestPage()
 {
-	setLayout(new QVBoxLayout);
-	layout()->setSizeConstraint(QLayout::SetFixedSize);
+	QVBoxLayout* layout = new QVBoxLayout(this);
+	layout->setSizeConstraint(QLayout::SetFixedSize);
 
-	layout()->addWidget(&leTitle);
-	layout()->addWidget(&leText);
+	leTitle = new QLabel;
+	leText  = new QLabel;
+	leTitle->setWordWrap(true);
+	leText ->setWordWrap(true);
+	layout->addWidget(leTitle);
+	layout->addWidget(leText);
 
 	setFont(globalFont);
-	leTitle.setFont(titleFont);
-	leText .setFont(textFont);
+	leTitle->setFont(titleFont);
+	leText ->setFont(textFont);
 
 	maySkip = false;
 	elapsed = 0;
@@ -33,7 +37,7 @@ void TestPage::setFocus() {
 
 QString TestPage::toString() const
 {
-	QString result = leTitle.text() + "\t" + getAnswer().toString();
+	QString result = leTitle->text() + "\t" + getAnswer().toString();
 	if(elapsed > 0)
 		result += "\t" + tr("%1 seconds").arg(elapsed);
 	return result;
@@ -64,20 +68,24 @@ void TestPage::showEvent(QShowEvent* event)
 	setFocus();   // automatically grab focus
 }
 
+void TestPage::finalize() {
+	layout()->addItem(new QSpacerItem(20, 40, QSizePolicy::Preferred, QSizePolicy::Expanding));
+}
+
 void TestPage::onTimer() {
 	elapsed ++;
 }
 
 void TestPage::setTitle(const QString& title)
 {
-	leTitle.setText(title);
-	leTitle.setHidden(title.isEmpty());   // empty title is hidden
+	leTitle->setText(title);
+	leTitle->setHidden(title.isEmpty());   // empty title is hidden
 }
 
 void TestPage::setText(const QString& text)
 {
-	leText.setText(text);
-	leText.setHidden(text.isEmpty());     // empty text is hidden
+	leText->setText(text);
+	leText->setHidden(text.isEmpty());     // empty text is hidden
 }
 
 void TestPage::setTimerEnabled(bool enable)

@@ -14,20 +14,31 @@ bool TestLoader::atEnd() {
 	return xml.atEnd();
 }
 
-// A font section must contain fontfamily, fontweight and fontsize
+// A font section may contain family, weight and size
 QFont TestLoader::loadFont()
 {
 	QFont result = qApp->font();        // use system font by default
-	if(xml.readNextStartElement() && xml.name() == "fontfamily")
-		result.setFamily(xml.readElementText());
-	if(xml.readNextStartElement() && xml.name() == "fontweight") {
-		if(xml.readElementText() == "normal")
-			result.setWeight(QFont::Normal);
-		else if(xml.readElementText() == "bold")
-			result.setWeight(QFont::Bold);
+	if(!xml.readNextStartElement() || xml.name() != "font")
+		return result;
+
+	while(!(xml.isEndElement() && xml.name() == "font")) {
+		if(xml.readNextStartElement())
+		{
+			if(xml.name() == "family")
+				result.setFamily(xml.readElementText());
+			else if(xml.name() == "weight")
+			{
+				QString weight = xml.readElementText();
+				if(weight == "normal")
+					result.setWeight(QFont::Normal);
+				else if(weight == "bold")
+					result.setWeight(QFont::Bold);
+			}
+			else if(xml.name() == "size")
+				result.setPointSize(xml.readElementText().toInt());
+		}
 	}
-	if(xml.readNextStartElement() && xml.name() == "fontsize")
-		result.setPointSize(xml.readElementText().toInt());
+
 	return result;
 }
 
