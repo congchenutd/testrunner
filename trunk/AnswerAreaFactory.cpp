@@ -2,7 +2,7 @@
 #include "AnswerArea.h"
 #include <QXmlStreamReader>
 
-IAnswerArea* DefaultAreaFactory::load(QXmlStreamReader& xml) {
+IAnswerArea* DefaultAreaFactory::load(QXmlStreamReader&) {
 	return new DefaultAnswerArea;
 }
 
