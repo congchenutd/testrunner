@@ -1,4 +1,5 @@
 #include "TestPage.h"
+#include "AnswerArea.h"
 #include <QVBoxLayout>
 #include <QRadioButton>
 #include <QCheckBox>
@@ -43,14 +44,16 @@ QString TestPage::toString() const
 	return result;
 }
 
+void TestPage::setAnswerArea(IAnswerArea* answerArea)
+{
+	layout()->addWidget(answerArea);
+	layout()->addItem(new QSpacerItem(20, 40, QSizePolicy::Preferred, QSizePolicy::Expanding));
+}
+
 bool TestPage::validate() const
 {
 	if(maySkip)
 		return accept(true);
-
-//	if(startTime.isValid() && endTime.isValid())
-//		if(QTime::currentTime() < startTime || QTime::currentTime() > endTime.currentTime())
-//			return accept(false);
 
 	// getAnswer() should return QVariant() if the result is invalid
 	return accept(getAnswer().isValid());
@@ -97,15 +100,6 @@ void TestPage::setTimerEnabled(bool enable)
 		connect(timer, SIGNAL(timeout()), this, SLOT(onTimer()));
 		timer->start(1000);
 	}
-}
-
-void TestPage::setDuration(const QTime& start, const QTime& end)
-{
-	if(!start.isValid() || !end.isValid())
-		return;
-
-	startTime = start;
-	endTime   = end;
 }
 
 

@@ -14,12 +14,16 @@ SOURCES +=\
 	MainWindow.cpp \
 	TestPage.cpp \
 	Main.cpp \
-    TestLoader.cpp
+    TestLoader.cpp \
+    AnswerAreaFactory.cpp \
+    AnswerArea.cpp
 
 HEADERS  += \
 	MainWindow.h \
 	TestPage.h \
-    TestLoader.h
+    TestLoader.h \
+    AnswerAreaFactory.h \
+    AnswerArea.h
 
 FORMS    += \
 	MainWindow.ui
