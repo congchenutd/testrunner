@@ -21,24 +21,19 @@ class TestPage : public QWidget
 	Q_OBJECT
 
 public:
-	TestPage();
-	virtual ~TestPage() {}
+	TestPage(const QString& title, const QString& text,
+			 bool skip = false, bool timer = false, bool name = false);
 
 	void setTitle(const QString& title);
 	void setText (const QString& text);
 	void setSkippable   (bool skip) { maySkip = skip; }
 	void setTimerEnabled(bool enable);
-	QString toString() const;
-	void setAnswerArea(IAnswerArea* answerArea);
-	void finalize();
+	void setAnswerArea(IAnswerArea* answer);
+	void setIsName (bool name) { isName = name; }
+	bool isNamePage() const    { return isName; }
 
-	virtual void setIsName    (bool)           {}      // for BlankFillingPage
-	virtual void setValueRange(int, int)       {}      // for IntegerPage
-	virtual void addChoice    (const QString&) {}      // for single/multiple choice page
-	virtual bool isNamePage() const { return false; }  // for BlankFillingPage
-
-	virtual QVariant getAnswer() const = 0;
-	virtual void setFocus();   // allow derived to set focus to input widgets
+	QString  toString() const;
+	QVariant getAnswer() const;
 
 	static void setGlobalFont(const QFont& font) { globalFont = font; }
 	static void setTitleFont (const QFont& font) { titleFont  = font; }
@@ -50,9 +45,8 @@ public slots:
 signals:
 	void valid(bool) const;               // result of validate()
 
-protected:
+private:
 	bool accept(bool ok) const;           // for convenience
-	virtual void showEvent(QShowEvent*);
 
 private slots:
 	void onTimer();
@@ -62,68 +56,12 @@ private:
 	QLabel* leText;
 	bool maySkip;     // Is this page optional
 	int  elapsed;     // How long (seconds) was spent on this page
+	bool isName;
+	IAnswerArea* answerArea;
 
 	static QFont globalFont;   // style
 	static QFont titleFont;
 	static QFont textFont;
-};
-
-// nothing but title and text inherited from TestPage
-class TextPage : public TestPage
-{
-public:
-	virtual QVariant getAnswer() const { return QString(); }
-	virtual bool validate() const;   // always true
-};
-
-class SingleChoicePage : public TestPage
-{
-public:
-	virtual QVariant getAnswer() const;
-	virtual void addChoice(const QString& choice);
-	virtual void setFocus();
-
-private:
-	QList<QRadioButton*> radioButtons;
-};
-
-class MultipleChoicePage : public TestPage
-{
-public:
-	virtual QVariant getAnswer() const;
-	virtual void addChoice(const QString& choice);
-	virtual void setFocus();
-
-private:
-	QList<QCheckBox*> checkBoxes;
-};
-
-class IntegerPage : public TestPage
-{
-public:
-	IntegerPage();
-
-	virtual QVariant getAnswer() const;
-	virtual void setValueRange(int min, int max);
-	virtual void setFocus();
-
-private:
-	QSpinBox* spinBox;
-};
-
-class BlankFillingPage : public TestPage
-{
-public:
-	BlankFillingPage();
-
-	virtual QVariant getAnswer() const;
-	virtual void setFocus();
-	virtual void setIsName(bool name) { isName = name; }
-	virtual bool isNamePage() const { return isName; }
-
-private:
-	QLineEdit* lineEdit;
-	bool isName;            // Does this page contains participant name?
 };
 
 #endif // TESTPAGE_H

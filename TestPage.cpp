@@ -12,10 +12,14 @@ QFont TestPage::globalFont;
 QFont TestPage::titleFont;
 QFont TestPage::textFont;
 
-TestPage::TestPage()
+TestPage::TestPage(const QString& title, const QString& text, bool skip, bool timer, bool name)
 {
 	QVBoxLayout* layout = new QVBoxLayout(this);
 	layout->setSizeConstraint(QLayout::SetFixedSize);
+
+	setFont(globalFont);
+	leTitle->setFont(titleFont);
+	leText ->setFont(textFont);
 
 	leTitle = new QLabel;
 	leText  = new QLabel;
@@ -23,17 +27,13 @@ TestPage::TestPage()
 	leText ->setWordWrap(true);
 	layout->addWidget(leTitle);
 	layout->addWidget(leText);
+	setTitle(title);
+	setText (text);
 
-	setFont(globalFont);
-	leTitle->setFont(titleFont);
-	leText ->setFont(textFont);
-
-	maySkip = false;
-	elapsed = 0;
-}
-
-void TestPage::setFocus() {
-	QWidget::setFocus();
+	maySkip = skip;
+	isName  = name;
+	setTimerEnabled(timer);
+	answerArea = new DefaultAnswerArea;
 }
 
 QString TestPage::toString() const
@@ -44,19 +44,19 @@ QString TestPage::toString() const
 	return result;
 }
 
-void TestPage::setAnswerArea(IAnswerArea* answerArea)
+void TestPage::setAnswerArea(IAnswerArea* answer)
 {
+	if(answer == 0)
+		return;
+	delete answerArea;
+	answerArea = answer;
 	layout()->addWidget(answerArea);
 	layout()->addItem(new QSpacerItem(20, 40, QSizePolicy::Preferred, QSizePolicy::Expanding));
+	connect(answerArea, SIGNAL(validated(bool)), this, SIGNAL(valid(bool)));
 }
 
-bool TestPage::validate() const
-{
-	if(maySkip)
-		return accept(true);
-
-	// getAnswer() should return QVariant() if the result is invalid
-	return accept(getAnswer().isValid());
+bool TestPage::validate() const {
+	return maySkip ? accept(true) : accept(answerArea->validate());
 }
 
 bool TestPage::accept(bool ok) const
@@ -65,14 +65,8 @@ bool TestPage::accept(bool ok) const
 	return ok;
 }
 
-void TestPage::showEvent(QShowEvent* event)
-{
-	QWidget::showEvent(event);
-	setFocus();   // automatically grab focus
-}
-
-void TestPage::finalize() {
-	layout()->addItem(new QSpacerItem(20, 40, QSizePolicy::Preferred, QSizePolicy::Expanding));
+QVariant TestPage::getAnswer() const {
+	return answerArea->getAnswer();
 }
 
 void TestPage::onTimer() {
@@ -101,100 +95,3 @@ void TestPage::setTimerEnabled(bool enable)
 		timer->start(1000);
 	}
 }
-
-
-/////////////////////////////////////////////////////////////////////////////////
-bool TextPage::validate() const {
-	return accept(true);   // nothing to validate
-}
-
-
-///////////////////////////////////////////////////////////////////////////////
-void SingleChoicePage::addChoice(const QString& choice)
-{
-	QRadioButton* radio = new QRadioButton(choice, this);
-	layout()->addWidget(radio);
-	radioButtons << radio;
-	connect(radio, SIGNAL(clicked()), this, SLOT(validate()));   // auto validate
-}
-
-QVariant SingleChoicePage::getAnswer() const
-{
-	foreach(QRadioButton* radio, radioButtons)
-		if(radio->isChecked())
-			return radio->text();
-	return QVariant();
-}
-
-// focus on the first choice
-void SingleChoicePage::setFocus() {
-	if(!radioButtons.isEmpty())
-		radioButtons.front()->setFocus();
-}
-
-
-////////////////////////////////////////////////////////////////////////////
-void MultipleChoicePage::addChoice(const QString &choice)
-{
-	QCheckBox* checkBox = new QCheckBox(choice, this);
-	layout()->addWidget(checkBox);
-	checkBoxes << checkBox;
-	connect(checkBox, SIGNAL(clicked()), this, SLOT(validate()));  // auto validate
-}
-
-QVariant MultipleChoicePage::getAnswer() const
-{
-	QStringList result;
-	foreach(QCheckBox* checkBox, checkBoxes)
-		if(checkBox->isChecked())
-			result << checkBox->text();
-	return result.isEmpty() ? QVariant() : result.join("\t");
-}
-
-// focus on the first choice
-void MultipleChoicePage::setFocus() {
-	if(!checkBoxes.isEmpty())
-		checkBoxes.front()->setFocus();
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-IntegerPage::IntegerPage()
-{
-	spinBox = new QSpinBox(this);
-	layout()->addWidget(spinBox);
-}
-
-void IntegerPage::setValueRange(int min, int max)
-{
-	spinBox->setMinimum(min);
-	spinBox->setMaximum(max);
-}
-
-QVariant IntegerPage::getAnswer() const {
-	return spinBox->value();
-}
-
-void IntegerPage::setFocus()
-{
-	spinBox->setFocus();
-	spinBox->selectAll();
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-BlankFillingPage::BlankFillingPage()
-{
-	isName = false;
-	lineEdit = new QLineEdit(this);
-	layout()->addWidget(lineEdit);
-	connect(lineEdit, SIGNAL(textEdited(QString)), this, SLOT(validate())); // auto validate
-}
-
-QVariant BlankFillingPage::getAnswer() const {
-	return lineEdit->text().isEmpty() ? QVariant() : lineEdit->text();
-}
-
-void BlankFillingPage::setFocus() {
-	lineEdit->setFocus();
-}
-
-

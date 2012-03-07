@@ -6,15 +6,20 @@
 #include <QLineEdit>
 #include <QLabel>
 
-IAnswerArea::IAnswerArea(QWidget* parent) : QWidget(parent) {}
-
-DefaultArea::DefaultArea(QWidget *parent) : IAnswerArea(parent)
+IAnswerArea::IAnswerArea(QWidget* parent) : QWidget(parent)
 {
 	vLayout = new QVBoxLayout(this);
 	setLayout(vLayout);
 }
 
-void DefaultArea::showEvent(QShowEvent* event)
+bool IAnswerArea::validate() const
+{
+	bool result = !getAnswer().isNull();
+	emit validated(result);
+	return result;
+}
+
+void IAnswerArea::showEvent(QShowEvent* event)
 {
 	QWidget::showEvent(event);
 	setFocus();   // automatically grab focus
@@ -37,9 +42,8 @@ QVariant SingleChoiceArea::getAnswer() const
 	return QVariant();
 }
 
-// focus on the first choice
 void SingleChoiceArea::setFocus() {
-	if(!radioButtons.isEmpty())
+	if(!radioButtons.isEmpty())   // focus on the first choice
 		radioButtons.front()->setFocus();
 }
 
@@ -62,12 +66,12 @@ QVariant MultipleChoiceArea::getAnswer() const
 }
 
 void MultipleChoiceArea::setFocus() {
-	if(!checkBoxes.isEmpty())
+	if(!checkBoxes.isEmpty())   // focus on the first choice
 		checkBoxes.front()->setFocus();
 }
 
 //////////////////////////////////////////////////////////////
-IntegerArea::IntegerArea(QWidget* parent) : DefaultArea(parent)
+IntegerArea::IntegerArea(QWidget* parent) : IAnswerArea(parent)
 {
 	spinBox = new QSpinBox(this);
 	vLayout->addWidget(spinBox);
@@ -104,10 +108,16 @@ void BlankFillingArea::addBlank(const QString& name)
 
 QVariant BlankFillingArea::getAnswer() const
 {
+	bool allEmpty = true;
 	QStringList result;
 	foreach(QLineEdit* edit, lineEdits)
-		result << edit->text();
-	return result.isEmpty() ? QVariant() : result.join("\t");
+	{
+		QString text = edit->text();
+		if(!text.isEmpty())
+			allEmpty = false;
+		result << text;
+	}
+	return allEmpty ? QVariant() : result.join("\t");
 }
 
 void BlankFillingArea::setFocus() {

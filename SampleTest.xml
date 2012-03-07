@@ -31,7 +31,9 @@
 		<question title = "Name" isname = "true">
 			<content>What's your name?</content>
 			<answer>
-				<blank>Name</blank>
+				<blank>
+					<line>Name</line>
+				</blank>
 			</answer>
 		</question>
 	</section>
@@ -67,9 +69,13 @@
 			</answer>
 		</question>
 		<question title = "Question 4: fill in the blank" timeit = "true">
-			<content>What is your major?</content>
+			<content>Name 3 of your mostly used IDEs?</content>
 			<answer>
-				<blank></blank>
+				<blank>
+					<line>IDE 1</line>
+					<line>IDE 2</line>
+					<line>IDE 3</line>
+				</blank>
 			</answer>
 		</question>
 	</section>
