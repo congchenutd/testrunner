@@ -2,19 +2,25 @@
 <test>
 	<style>
 		<global>
-			<fontfamily>Arial</fontfamily>
-			<fontweight>normal</fontweight>
-			<fontsize>12</fontsize>
+			<font>
+				<family>Arial</family>
+				<weight>normal</weight>
+				<size>12</size>
+			</font>
 		</global>
 		<title>
-			<fontfamily>Arial</fontfamily>
-			<fontweight>bold</fontweight>
-			<fontsize>24</fontsize>
+			<font>
+				<family>Arial</family>
+				<weight>Bold</weight>
+				<size>16</size>
+			</font>
 		</title>
 		<text>
-			<fontfamily>Arial</fontfamily>
-			<fontweight>normal</fontweight>
-			<fontsize>14</fontsize>
+			<font>
+				<family>Arial</family>
+				<weight>normal</weight>
+				<size>12</size>
+			</font>
 		</text>
 	</style>
 	
@@ -22,7 +28,7 @@
 	
 	<section title = "Sign up">
 		<intro>This section asks basic information about you</intro>
-		<question title = "Name" isname = "true" start = "14:30:00" end = "14:35:00">
+		<question title = "Name" isname = "true">
 			<content>What's your name?</content>
 			<answer>
 				<blank></blank>
