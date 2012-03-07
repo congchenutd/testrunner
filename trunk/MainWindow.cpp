@@ -120,7 +120,6 @@ void MainWindow::setPage(TestPage* page)
 	}
 
 	// set new page
-	page->finalize();
 	currentPage = page;
 	setCentralWidget(page);
 

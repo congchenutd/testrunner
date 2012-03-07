@@ -90,7 +90,7 @@ TestPage* TestLoader::loadIntro(const QString& title)
 
 	QString introText = xml.readElementText();
 	return introText.isEmpty() ? 0
-							   : createTextPage(title, introText);
+							   : new TestPage(title, introText);
 }
 
 TestPage* TestLoader::loadSection()
@@ -137,58 +137,31 @@ TestPage* TestLoader::loadQuestion()
 
 	// prepare the page with the question and the answer area
 	QString pageName = xml.name().toString();
-	TestPage* page = createPage(pageName);
-	page->setAnswerArea(createAnswerAreaFactory(pageName)->load(xml));
-
-	// attributes of answers
-	int min = xml.attributes().value("min").toString().toInt();
-	int max = xml.attributes().value("max").toString().toInt();
-
-	page->setTitle(title);
-	page->setText(content);
-	page->setValueRange(min, max);
+	TestPage* page = new TestPage(title, content);
 	page->setSkippable(maySkip);
 	page->setTimerEnabled(timeIt);
 	page->setIsName(isName);
-	if(pageName == "single" || pageName == "multiple") {
-		while(xml.readNextStartElement() && xml.name() == "choice")
-			page->addChoice(xml.readElementText());
-	}
+
+	page->setAnswerArea(createAnswerAreaFactory(pageName)->load(xml));
 	return page;
 }
 
 TestPage *TestLoader::loadEndPage()
 {
 	mainWindow->setTitle(tr("Finished"));
-	return createTextPage(tr("Finished"),
-						  tr("Thank you for your cooperation! You may quit the test now."));
-}
-
-// simple factory
-TestPage *TestLoader::createPage(const QString& pageName)
-{
-	if(pageName == "integer")
-		return new IntegerPage;
-	else if(pageName == "single")
-		return new SingleChoicePage;
-	else if(pageName == "multiple")
-		return new MultipleChoicePage;
-	else if(pageName == "blank")
-		return new BlankFillingPage;
-	return new TextPage;
-}
-
-TestPage* TestLoader::createTextPage(const QString& title, const QString& text)
-{
-	TestPage* page = new TextPage;
-	page->setTitle(title);
-	page->setText(text);
-	return page;
+	return new TestPage(tr("Finished"),
+						tr("Thank you for your cooperation! You may quit the test now."));
 }
 
 AnswerAreaFactory* TestLoader::createAnswerAreaFactory(const QString& factoryName)
 {
 	if(factoryName == "single")
 		return new SingleChoiceAreaFactory;
+	else if(factoryName == "multiple")
+		return new MultipleChoiceAreaFactory;
+	else if(factoryName == "integer")
+		return new IntegerAreaFactory;
+	else if(factoryName == "blank")
+		return new BlankFillingAreaFactory;
 	return new DefaultAreaFactory;
 }

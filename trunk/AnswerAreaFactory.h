@@ -28,4 +28,25 @@ public:
 	virtual IAnswerArea* load(QXmlStreamReader& xml);
 };
 
+class MultipleChoiceAreaFactory : public AnswerAreaFactory
+{
+public:
+	MultipleChoiceAreaFactory(QObject* parent = 0) :AnswerAreaFactory(parent) {}
+	virtual IAnswerArea* load(QXmlStreamReader& xml);
+};
+
+class IntegerAreaFactory : public AnswerAreaFactory
+{
+public:
+	IntegerAreaFactory(QObject* parent = 0) :AnswerAreaFactory(parent) {}
+	virtual IAnswerArea* load(QXmlStreamReader& xml);
+};
+
+class BlankFillingAreaFactory : public AnswerAreaFactory
+{
+public:
+	BlankFillingAreaFactory(QObject* parent = 0) :AnswerAreaFactory(parent) {}
+	virtual IAnswerArea* load(QXmlStreamReader& xml);
+};
+
 #endif // ANSWERAREAFACTORY_H

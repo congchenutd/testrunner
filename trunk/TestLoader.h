@@ -25,15 +25,11 @@ public:
 
 private:
 	QFont loadFont();
-	TestPage* createPage(const QString& pageName);
-	TestPage* createTextPage(const QString& title, const QString& text);  // for convenience
 	AnswerAreaFactory* createAnswerAreaFactory(const QString& factoryName);
 
 private:
 	QXmlStreamReader xml;
 	MainWindow* mainWindow;
 };
-
-
 
 #endif // TESTLOADER_H

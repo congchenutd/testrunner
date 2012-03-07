@@ -5,38 +5,42 @@
 #include <QVariant>
 #include <QList>
 
+class QVBoxLayout;
 class IAnswerArea : public QWidget
 {
+	Q_OBJECT
 public:
 	IAnswerArea(QWidget* parent = 0);
 	virtual ~IAnswerArea() {}
 	virtual QVariant getAnswer() const = 0;
 
 public slots:
-	virtual bool validate() const = 0;
-};
-
-class QVBoxLayout;
-class DefaultArea : public IAnswerArea
-{
-public:
-	DefaultArea(QWidget* parent = 0);
-	virtual QVariant getAnswer() const { return QString(); }
-	virtual bool     validate()  const { return !getAnswer().isNull(); }
-
-protected:
 	virtual void showEvent(QShowEvent*);
+	virtual bool validate() const;
 	virtual void setFocus() {}
+
+signals:
+	void validated(bool) const;
 
 protected:
 	QVBoxLayout* vLayout;
 };
 
-class QRadioButton;
-class SingleChoiceArea : public DefaultArea
+class DefaultAnswerArea : public IAnswerArea
 {
 public:
-	SingleChoiceArea(QWidget* parent = 0) : DefaultArea(parent) {}
+	DefaultAnswerArea(QWidget* parent = 0) : IAnswerArea(parent){}
+	virtual QVariant getAnswer() const { return QString(); }
+
+protected:
+	virtual bool validate() const { return true; }
+};
+
+class QRadioButton;
+class SingleChoiceArea : public IAnswerArea
+{
+public:
+	SingleChoiceArea(QWidget* parent = 0) : IAnswerArea(parent) {}
 	void addChoice(const QString& choice);
 
 	virtual QVariant getAnswer() const;
@@ -47,10 +51,10 @@ private:
 };
 
 class QCheckBox;
-class MultipleChoiceArea : public DefaultArea
+class MultipleChoiceArea : public IAnswerArea
 {
 public:
-	MultipleChoiceArea(QWidget* parent = 0) : DefaultArea(parent) {}
+	MultipleChoiceArea(QWidget* parent = 0) : IAnswerArea(parent) {}
 	void addChoice(const QString& choice);
 
 	virtual QVariant getAnswer() const;
@@ -61,7 +65,7 @@ private:
 };
 
 class QSpinBox;
-class IntegerArea : public DefaultArea
+class IntegerArea : public IAnswerArea
 {
 public:
 	IntegerArea(QWidget* parent = 0);
@@ -75,10 +79,10 @@ private:
 };
 
 class QLineEdit;
-class BlankFillingArea : public DefaultArea
+class BlankFillingArea : public IAnswerArea
 {
 public:
-	BlankFillingArea(QWidget* parent = 0) : DefaultArea(parent) {}
+	BlankFillingArea(QWidget* parent = 0) : IAnswerArea(parent) {}
 	void addBlank(const QString& name);
 
 	virtual QVariant getAnswer() const;
