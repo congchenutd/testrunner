@@ -2,6 +2,7 @@
 #include "TestPage.h"
 #include "TestPage.h"
 #include "MainWindow.h"
+#include "AnswerAreaFactory.h"
 #include <QApplication>
 
 bool TestLoader::openXMLFile(QFile& xmlFile)
@@ -118,8 +119,6 @@ TestPage* TestLoader::loadQuestion()
 
 	// attributes of the question
 	QString title   = xml.attributes().value("title")  .toString();
-//	QString start   = xml.attributes().value("start")  .toString();
-//	QString end     = xml.attributes().value("end")    .toString();
 	bool    maySkip = xml.attributes().value("mayskip").toString() == "true";
 	bool    timeIt  = xml.attributes().value("timeit") .toString() == "true";
 	bool    isName  = xml.attributes().value("isname") .toString() == "true";
@@ -138,20 +137,19 @@ TestPage* TestLoader::loadQuestion()
 
 	// prepare the page with the question and the answer area
 	QString pageName = xml.name().toString();
+	TestPage* page = createPage(pageName);
+	page->setAnswerArea(createAnswerAreaFactory(pageName)->load(xml));
 
 	// attributes of answers
 	int min = xml.attributes().value("min").toString().toInt();
 	int max = xml.attributes().value("max").toString().toInt();
 
-	TestPage* page = createPage(pageName);
 	page->setTitle(title);
 	page->setText(content);
 	page->setValueRange(min, max);
 	page->setSkippable(maySkip);
 	page->setTimerEnabled(timeIt);
 	page->setIsName(isName);
-//	page->setDuration(QTime::fromString(start, "hh:mm:ss"),
-//					  QTime::fromString(end,   "hh:mm:ss"));
 	if(pageName == "single" || pageName == "multiple") {
 		while(xml.readNextStartElement() && xml.name() == "choice")
 			page->addChoice(xml.readElementText());
@@ -186,4 +184,11 @@ TestPage* TestLoader::createTextPage(const QString& title, const QString& text)
 	page->setTitle(title);
 	page->setText(text);
 	return page;
+}
+
+AnswerAreaFactory* TestLoader::createAnswerAreaFactory(const QString& factoryName)
+{
+	if(factoryName == "single")
+		return new SingleChoiceAreaFactory;
+	return new DefaultAreaFactory;
 }

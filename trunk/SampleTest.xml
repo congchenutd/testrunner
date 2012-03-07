@@ -31,7 +31,7 @@
 		<question title = "Name" isname = "true">
 			<content>What's your name?</content>
 			<answer>
-				<blank></blank>
+				<blank>Name</blank>
 			</answer>
 		</question>
 	</section>
