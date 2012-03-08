@@ -16,15 +16,15 @@ public:
 	TestLoader(MainWindow* mainWnd) : mainWindow(mainWnd) {}
 	bool      openXMLFile(QFile& fileName);
 	bool      atEnd();
-	void      loadStyle();
 	TestPage* loadNext();                        // next element
-	TestPage* loadIntro(const QString& title);   // intro of a section or test
-	TestPage* loadSection();
 	TestPage* loadQuestion();
-	TestPage* loadEndPage();
 
 private:
-	QFont loadFont();
+	void      loadStyle();
+	TestPage* loadIntro(const QString& title);   // intro of a section or test
+	TestPage* loadSection();
+	TestPage* loadEndPage();
+	QFont     loadFont();
 	AnswerAreaFactory* createAnswerAreaFactory(const QString& factoryName);
 
 private:

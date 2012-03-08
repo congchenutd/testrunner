@@ -79,7 +79,7 @@ TestPage* TestLoader::loadNext()
 		}
 		xml.readNextStartElement();
 	}
-	return 0;
+	return loadEndPage();
 }
 
 // a test or a section can have a introduction
@@ -89,8 +89,7 @@ TestPage* TestLoader::loadIntro(const QString& title)
 		return 0;
 
 	QString introText = xml.readElementText();
-	return introText.isEmpty() ? 0
-							   : new TestPage(title, introText);
+	return introText.isEmpty() ? 0 : new TestPage(title, introText);
 }
 
 TestPage* TestLoader::loadSection()
@@ -125,8 +124,8 @@ TestPage* TestLoader::loadQuestion()
 
 	if(!xml.readNextStartElement() || xml.name() != "content")
 		return 0;
-	QString content = xml.readElementText();
-	if(content.isEmpty())
+	QString text = xml.readElementText();
+	if(text.isEmpty())
 		return 0;
 
 	if(!xml.readNextStartElement() || xml.name() != "answer")
@@ -136,12 +135,12 @@ TestPage* TestLoader::loadQuestion()
 	mainWindow->setAnswered(true);   // ??
 
 	// prepare the page with the question and the answer area
-	QString pageName = xml.name().toString();
-	TestPage* page = new TestPage(title, content);
+	TestPage* page = new TestPage(title, text);
 	page->setSkippable(maySkip);
 	page->setTimerEnabled(timeIt);
 	page->setIsName(isName);
 
+	QString pageName = xml.name().toString();
 	page->setAnswerArea(createAnswerAreaFactory(pageName)->load(xml));
 	return page;
 }

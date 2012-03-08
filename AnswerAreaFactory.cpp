@@ -2,11 +2,11 @@
 #include "AnswerArea.h"
 #include <QXmlStreamReader>
 
-IAnswerArea* DefaultAreaFactory::load(QXmlStreamReader&) {
+AnswerArea* DefaultAreaFactory::load(QXmlStreamReader&) {
 	return new DefaultAnswerArea;
 }
 
-IAnswerArea* SingleChoiceAreaFactory::load(QXmlStreamReader& xml)
+AnswerArea* SingleChoiceAreaFactory::load(QXmlStreamReader& xml)
 {
 	SingleChoiceArea* result = new SingleChoiceArea;
 	while(xml.readNextStartElement() && xml.name() == "choice")
@@ -14,7 +14,7 @@ IAnswerArea* SingleChoiceAreaFactory::load(QXmlStreamReader& xml)
 	return result;
 }
 
-IAnswerArea* MultipleChoiceAreaFactory::load(QXmlStreamReader& xml)
+AnswerArea* MultipleChoiceAreaFactory::load(QXmlStreamReader& xml)
 {
 	MultipleChoiceArea* result = new MultipleChoiceArea;
 	while(xml.readNextStartElement() && xml.name() == "choice")
@@ -22,7 +22,7 @@ IAnswerArea* MultipleChoiceAreaFactory::load(QXmlStreamReader& xml)
 	return result;
 }
 
-IAnswerArea* IntegerAreaFactory::load(QXmlStreamReader& xml)
+AnswerArea* IntegerAreaFactory::load(QXmlStreamReader& xml)
 {
 	IntegerArea* result = new IntegerArea;
 	int min = xml.attributes().value("min").toString().toInt();
@@ -31,7 +31,7 @@ IAnswerArea* IntegerAreaFactory::load(QXmlStreamReader& xml)
 	return result;
 }
 
-IAnswerArea* BlankFillingAreaFactory::load(QXmlStreamReader& xml)
+AnswerArea* BlankFillingAreaFactory::load(QXmlStreamReader& xml)
 {
 	BlankFillingArea* result = new BlankFillingArea;
 	while(xml.readNextStartElement() && xml.name() == "line")

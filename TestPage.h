@@ -12,7 +12,7 @@ class QRadioButton;
 class QCheckBox;
 class QSpinBox;
 class QLineEdit;
-class IAnswerArea;
+class AnswerArea;
 
 // TestPage is like QWizardPage, hosting a question and an area for answer
 // By default, it only contains a title and a line of text for the question
@@ -28,7 +28,7 @@ public:
 	void setText (const QString& text);
 	void setSkippable   (bool skip) { maySkip = skip; }
 	void setTimerEnabled(bool enable);
-	void setAnswerArea(IAnswerArea* answer);
+	void setAnswerArea(AnswerArea* answer);
 	void setIsName (bool name) { isName = name; }
 	bool isNamePage() const    { return isName; }
 
@@ -57,7 +57,7 @@ private:
 	bool maySkip;     // Is this page optional
 	int  elapsed;     // How long (seconds) was spent on this page
 	bool isName;
-	IAnswerArea* answerArea;
+	AnswerArea* answerArea;
 
 	static QFont globalFont;   // style
 	static QFont titleFont;
