@@ -103,7 +103,6 @@ void MainWindow::onNext()
 		quitSafe = true;
 		ui.actionNext->setVisible(false);
 		ui.actionQuit->setVisible(true);
-		setPage(loader->loadEndPage());   // show the end page
 	}
 }
 

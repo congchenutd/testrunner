@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-class IAnswerArea;
+class AnswerArea;
 class QXmlStreamReader;
 
 class AnswerAreaFactory : public QObject
@@ -11,42 +11,42 @@ class AnswerAreaFactory : public QObject
 public:
 	AnswerAreaFactory(QObject* parent = 0) :QObject(parent) {}
 	virtual ~AnswerAreaFactory() {}
-	virtual IAnswerArea* load(QXmlStreamReader& xml) = 0;
+	virtual AnswerArea* load(QXmlStreamReader& xml) = 0;
 };
 
 class DefaultAreaFactory : public AnswerAreaFactory
 {
 public:
 	DefaultAreaFactory(QObject* parent = 0) :AnswerAreaFactory(parent) {}
-	virtual IAnswerArea* load(QXmlStreamReader& xml);
+	virtual AnswerArea* load(QXmlStreamReader& xml);
 };
 
 class SingleChoiceAreaFactory : public AnswerAreaFactory
 {
 public:
 	SingleChoiceAreaFactory(QObject* parent = 0) :AnswerAreaFactory(parent) {}
-	virtual IAnswerArea* load(QXmlStreamReader& xml);
+	virtual AnswerArea* load(QXmlStreamReader& xml);
 };
 
 class MultipleChoiceAreaFactory : public AnswerAreaFactory
 {
 public:
 	MultipleChoiceAreaFactory(QObject* parent = 0) :AnswerAreaFactory(parent) {}
-	virtual IAnswerArea* load(QXmlStreamReader& xml);
+	virtual AnswerArea* load(QXmlStreamReader& xml);
 };
 
 class IntegerAreaFactory : public AnswerAreaFactory
 {
 public:
 	IntegerAreaFactory(QObject* parent = 0) :AnswerAreaFactory(parent) {}
-	virtual IAnswerArea* load(QXmlStreamReader& xml);
+	virtual AnswerArea* load(QXmlStreamReader& xml);
 };
 
 class BlankFillingAreaFactory : public AnswerAreaFactory
 {
 public:
 	BlankFillingAreaFactory(QObject* parent = 0) :AnswerAreaFactory(parent) {}
-	virtual IAnswerArea* load(QXmlStreamReader& xml);
+	virtual AnswerArea* load(QXmlStreamReader& xml);
 };
 
 #endif // ANSWERAREAFACTORY_H

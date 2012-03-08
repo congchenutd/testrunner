@@ -6,12 +6,12 @@
 #include <QList>
 
 class QVBoxLayout;
-class IAnswerArea : public QWidget
+class AnswerArea : public QWidget
 {
 	Q_OBJECT
 public:
-	IAnswerArea(QWidget* parent = 0);
-	virtual ~IAnswerArea() {}
+	AnswerArea(QWidget* parent = 0);
+	virtual ~AnswerArea() {}
 	virtual QVariant getAnswer() const = 0;
 
 public slots:
@@ -26,10 +26,10 @@ protected:
 	QVBoxLayout* vLayout;
 };
 
-class DefaultAnswerArea : public IAnswerArea
+class DefaultAnswerArea : public AnswerArea
 {
 public:
-	DefaultAnswerArea(QWidget* parent = 0) : IAnswerArea(parent){}
+	DefaultAnswerArea(QWidget* parent = 0) : AnswerArea(parent){}
 	virtual QVariant getAnswer() const { return QString(); }
 
 protected:
@@ -37,10 +37,10 @@ protected:
 };
 
 class QRadioButton;
-class SingleChoiceArea : public IAnswerArea
+class SingleChoiceArea : public AnswerArea
 {
 public:
-	SingleChoiceArea(QWidget* parent = 0) : IAnswerArea(parent) {}
+	SingleChoiceArea(QWidget* parent = 0) : AnswerArea(parent) {}
 	void addChoice(const QString& choice);
 
 	virtual QVariant getAnswer() const;
@@ -51,10 +51,10 @@ private:
 };
 
 class QCheckBox;
-class MultipleChoiceArea : public IAnswerArea
+class MultipleChoiceArea : public AnswerArea
 {
 public:
-	MultipleChoiceArea(QWidget* parent = 0) : IAnswerArea(parent) {}
+	MultipleChoiceArea(QWidget* parent = 0) : AnswerArea(parent) {}
 	void addChoice(const QString& choice);
 
 	virtual QVariant getAnswer() const;
@@ -65,7 +65,7 @@ private:
 };
 
 class QSpinBox;
-class IntegerArea : public IAnswerArea
+class IntegerArea : public AnswerArea
 {
 public:
 	IntegerArea(QWidget* parent = 0);
@@ -79,10 +79,10 @@ private:
 };
 
 class QLineEdit;
-class BlankFillingArea : public IAnswerArea
+class BlankFillingArea : public AnswerArea
 {
 public:
-	BlankFillingArea(QWidget* parent = 0) : IAnswerArea(parent) {}
+	BlankFillingArea(QWidget* parent = 0) : AnswerArea(parent) {}
 	void addBlank(const QString& name);
 
 	virtual QVariant getAnswer() const;

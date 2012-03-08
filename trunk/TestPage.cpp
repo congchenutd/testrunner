@@ -17,9 +17,6 @@ TestPage::TestPage(const QString& title, const QString& text, bool skip, bool ti
 	QVBoxLayout* layout = new QVBoxLayout(this);
 	layout->setSizeConstraint(QLayout::SetFixedSize);
 
-	setFont(globalFont);
-	leTitle->setFont(titleFont);
-	leText ->setFont(textFont);
 
 	leTitle = new QLabel;
 	leText  = new QLabel;
@@ -29,6 +26,10 @@ TestPage::TestPage(const QString& title, const QString& text, bool skip, bool ti
 	layout->addWidget(leText);
 	setTitle(title);
 	setText (text);
+
+	setFont(globalFont);
+	leTitle->setFont(titleFont);
+	leText ->setFont(textFont);
 
 	maySkip = skip;
 	isName  = name;
@@ -44,7 +45,7 @@ QString TestPage::toString() const
 	return result;
 }
 
-void TestPage::setAnswerArea(IAnswerArea* answer)
+void TestPage::setAnswerArea(AnswerArea* answer)
 {
 	if(answer == 0)
 		return;
