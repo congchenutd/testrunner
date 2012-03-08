@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="TestRunner.qrc">
-    <normaloff>:/Images/Test.png</normaloff>:/Images/Test.png</iconset>
+    <normaloff>:/Images/Test2.png</normaloff>:/Images/Test2.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
