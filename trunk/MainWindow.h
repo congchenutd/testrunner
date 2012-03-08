@@ -49,7 +49,7 @@ private:
 	QTextStream os;
 
 	bool quitSafe;    // it's saft to quit before loading and after finishing
-	bool answered;    // is any questions answered. save the result if yes
+	bool answered;    // are any questions answered. save the result if yes
 
 	TestLoader* loader;
 };
