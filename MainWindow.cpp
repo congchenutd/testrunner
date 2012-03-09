@@ -136,13 +136,13 @@ void MainWindow::saveCurrentPage() {
 }
 
 QString MainWindow::makeTempFileName() const {
-	return tr("TestResult")
-			+ QDateTime::currentDateTime().toString("_yyyy-MM-dd-hh-mm-ss")
+	return QFileInfo(xmlFile.fileName()).baseName() + "_" + tr("TestResult")
+			+ QDateTime::currentDateTime().toString("@yyyy-MM-dd-hh-mm-ss")
 			+ ".tmp";
 }
 
 QString MainWindow::makeResultFileName() const {
-	return userName
-			+ QDateTime::currentDateTime().toString("_yyyy-MM-dd-hh-mm-ss")
+	return QFileInfo(xmlFile.fileName()).baseName() + "_" + userName
+			+ QDateTime::currentDateTime().toString("@yyyy-MM-dd-hh-mm-ss")
 			+ ".txt";
 }
