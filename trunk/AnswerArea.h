@@ -5,6 +5,8 @@
 #include <QVariant>
 #include <QList>
 
+typedef enum {IGNORED, VALID, INVALID} AnswerStatus;
+
 class QVBoxLayout;
 class AnswerArea : public QWidget
 {
@@ -16,11 +18,11 @@ public:
 
 public slots:
 	virtual void showEvent(QShowEvent*);
-	virtual bool validate() const;
 	virtual void setFocus() {}
+	virtual AnswerStatus validate() const;
 
 signals:
-	void validated(bool) const;
+	void validated(AnswerStatus) const;
 
 protected:
 	QVBoxLayout* vLayout;
@@ -33,7 +35,7 @@ public:
 	virtual QVariant getAnswer() const { return QString(); }
 
 protected:
-	virtual bool validate() const { return true; }
+	virtual AnswerStatus validate() const { return IGNORED; }
 };
 
 class QRadioButton;

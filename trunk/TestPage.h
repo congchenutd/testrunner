@@ -7,6 +7,7 @@
 #include <QLabel>
 #include <QFont>
 #include <QTime>
+#include "AnswerArea.h"
 
 class QRadioButton;
 class QCheckBox;
@@ -34,19 +35,14 @@ public:
 
 	QString  toString() const;
 	QVariant getAnswer() const;
+	void validate();                 // validate the answer
 
 	static void setGlobalFont(const QFont& font) { globalFont = font; }
 	static void setTitleFont (const QFont& font) { titleFont  = font; }
 	static void setTextFont  (const QFont& font) { textFont   = font; }
 
-public slots:
-	virtual bool validate() const;        // validate the answer
-
 signals:
-	void valid(bool) const;               // result of validate()
-
-private:
-	bool accept(bool ok) const;           // for convenience
+	void statusChanged(AnswerStatus);  // result of validate()
 
 private slots:
 	void onTimer();

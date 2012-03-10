@@ -132,7 +132,6 @@ TestPage* TestLoader::loadQuestion()
 		return 0;
 	if(!xml.readNextStartElement())
 		return 0;
-	mainWindow->setAnswered(true);   // actually, just loaded, not really answered
 
 	// prepare the page with the question and the answer area
 	TestPage* page = new TestPage(title, text);

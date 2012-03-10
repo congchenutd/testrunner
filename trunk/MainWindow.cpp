@@ -1,5 +1,6 @@
 #include "MainWindow.h"
 #include "TestPage.h"
+#include "TestState.h"
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QCloseEvent>
@@ -9,10 +10,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent), userName("UnkownParticipant")
 {
 	ui.setupUi(this);
-	ui.actionNext->setVisible(false);
 
-	quitSafe = true;
-	answered = false;
 	currentPage = 0;
 	loader = new TestLoader(this);
 
@@ -23,9 +21,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
 bool MainWindow::init(const QString& fileName)
 {
+	gotoInitState();
+
 	// open the temp file
-	tempFileName = makeTempFileName();
-	tempFile.setFileName(tempFileName);
+	tempFile.setFileName(makeTempFileName());
 	if(!tempFile.open(QFile::WriteOnly | QFile::Truncate))
 		return false;
 	os.setDevice(&tempFile);
@@ -39,10 +38,35 @@ void MainWindow::setTitle(const QString& title) {
 	setWindowTitle(tr("Test Runner - ") + title);
 }
 
+void MainWindow::updateButtons()
+{
+	ui.actionLoad->setVisible(state->isLoadEnabled());
+	ui.actionNext->setVisible(state->isNextEnabled());
+	ui.actionQuit->setVisible(state->isQuitEnabled());
+}
+
+void MainWindow::gotoInitState()
+{
+	state = TestState::init();
+	updateButtons();
+}
+
+void MainWindow::gotoNextState()
+{
+	state = state->gotoNext();
+	updateButtons();
+}
+
+void MainWindow::gotoEndState()
+{
+	state = state->gotoEnd();
+	updateButtons();
+}
+
 void MainWindow::closeEvent(QCloseEvent* event)
 {
 	// need confirmation if it's not safe to quit
-	if(!quitSafe) {
+	if(!state->isQuitSafe()) {
 		if(QMessageBox::warning(this, tr("Warning"), tr("Are you sure to abort the test?"),
 			QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
 		{
@@ -53,7 +77,7 @@ void MainWindow::closeEvent(QCloseEvent* event)
 			return event->ignore();   // quitting canceled
 	}
 
-	if(answered)                              // result is not empty
+	if(state->hasAnswered())                              // result is not empty
 		tempFile.copy(makeResultFileName());  // copy result
 	tempFile.remove();                        // remove temp
 	return QMainWindow::closeEvent(event);
@@ -86,10 +110,7 @@ void MainWindow::setTestFile(const QString& fileName)
 	// content correct
 	if(loader->openXMLFile(xmlFile))
 	{
-		quitSafe = false;
-		ui.actionLoad->setVisible(false);     // change action status
-		ui.actionQuit->setVisible(false);
-		ui.actionNext->setVisible(true);
+		gotoNextState();
 		setPage(loader->loadNext());          // style and intro
 	}
 }
@@ -99,11 +120,14 @@ void MainWindow::onNext()
 	setPage(loader->loadNext());          // load a section or question
 
 	if(loader->atEnd())                   // end of xml
-	{
-		quitSafe = true;
-		ui.actionNext->setVisible(false);
-		ui.actionQuit->setVisible(true);
-	}
+		gotoEndState();
+}
+
+void MainWindow::onTestStatus(AnswerStatus status)
+{
+	ui.actionNext->setEnabled(status != INVALID);  // IGNORED or VALID
+	if(status == VALID)
+		gotoNextState();
 }
 
 void MainWindow::setPage(TestPage* page)
@@ -122,7 +146,7 @@ void MainWindow::setPage(TestPage* page)
 	currentPage = page;
 	setCentralWidget(page);
 
-	connect(currentPage, SIGNAL(valid(bool)), ui.actionNext, SLOT(setEnabled(bool)));
+	connect(currentPage, SIGNAL(statusChanged(AnswerStatus)), this, SLOT(onTestStatus(AnswerStatus)));
 	currentPage->validate();    // will enable/disable the "Next" button
 }
 

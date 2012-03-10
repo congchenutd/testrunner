@@ -12,9 +12,10 @@ AnswerArea::AnswerArea(QWidget* parent) : QWidget(parent)
 	setLayout(vLayout);
 }
 
-bool AnswerArea::validate() const
+AnswerStatus AnswerArea::validate() const
 {
-	bool result = !getAnswer().isNull();
+	bool valid = !getAnswer().isNull();
+	AnswerStatus result = valid ? VALID : INVALID;
 	emit validated(result);
 	return result;
 }
