@@ -72,16 +72,15 @@ void MultipleChoiceArea::setFocus() {
 }
 
 //////////////////////////////////////////////////////////////
-IntegerArea::IntegerArea(QWidget* parent) : AnswerArea(parent)
+IntegerArea::IntegerArea(int min, int max, const QString& text, QWidget* parent) : AnswerArea(parent)
 {
+	QHBoxLayout* hLayout = new QHBoxLayout(this);
+	hLayout->addWidget(new QLabel(text, this));
 	spinBox = new QSpinBox(this);
-	vLayout->addWidget(spinBox);
-}
-
-void IntegerArea::setValueRange(int min, int max)
-{
 	spinBox->setMinimum(min);
 	spinBox->setMaximum(max);
+	hLayout->addWidget(spinBox);
+	vLayout->addLayout(hLayout);
 }
 
 QVariant IntegerArea::getAnswer() const {

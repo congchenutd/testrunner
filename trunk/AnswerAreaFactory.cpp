@@ -24,10 +24,9 @@ AnswerArea* MultipleChoiceAreaFactory::load(QXmlStreamReader& xml)
 
 AnswerArea* IntegerAreaFactory::load(QXmlStreamReader& xml)
 {
-	IntegerArea* result = new IntegerArea;
 	int min = xml.attributes().value("min").toString().toInt();
 	int max = xml.attributes().value("max").toString().toInt();
-	result->setValueRange(min, max);
+	IntegerArea* result = new IntegerArea(min, max, xml.readElementText());
 	return result;
 }
 
