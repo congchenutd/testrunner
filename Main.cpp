@@ -1,5 +1,6 @@
 #include <QtGui/QApplication>
 #include "MainWindow.h"
+#include "TestState.h"
 
 int main(int argc, char *argv[])
 {
@@ -15,9 +16,8 @@ int main(int argc, char *argv[])
 	MainWindow mainWnd;
 
 	// Load TestRunner.xml if it is placed at the same directory
-	bool initResult = (QFile::exists("TestRunner.xml"))
-					  ? mainWnd.init("TestRunner.xml")
-					  : mainWnd.init();
+	bool initResult = QFile::exists("TestRunner.xml") ? mainWnd.init("TestRunner.xml")
+													  : mainWnd.init();
 
 	if(initResult)
 	{

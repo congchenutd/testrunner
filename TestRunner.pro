@@ -16,14 +16,16 @@ SOURCES +=\
 	Main.cpp \
     TestLoader.cpp \
     AnswerAreaFactory.cpp \
-    AnswerArea.cpp
+    AnswerArea.cpp \
+    TestState.cpp
 
 HEADERS  += \
 	MainWindow.h \
 	TestPage.h \
     TestLoader.h \
     AnswerAreaFactory.h \
-    AnswerArea.h
+    AnswerArea.h \
+    TestState.h
 
 FORMS    += \
 	MainWindow.ui

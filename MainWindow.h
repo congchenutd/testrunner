@@ -3,12 +3,12 @@
 
 #include "ui_MainWindow.h"
 #include "TestLoader.h"
+#include "AnswerArea.h"
 #include <QFile>
 #include <QXmlStreamReader>
 #include <QTextStream>
 
-class TestPage;
-class TestLoader;
+class TestState;
 
 class MainWindow : public QMainWindow
 {
@@ -20,7 +20,6 @@ public:
 
 	// called by loader
 	void setTitle(const QString& title);
-	void setAnswered(bool an) { answered = an; }
 
 protected:
 	virtual void closeEvent(QCloseEvent*);
@@ -28,11 +27,16 @@ protected:
 private slots:
 	void onLoad();
 	void onNext();
+	void onTestStatus(AnswerStatus);
 
 private:
 	void setTestFile(const QString& fileName);
 	void setPage(TestPage* page);           // change page
 	void saveCurrentPage();
+	void updateButtons();
+	void gotoInitState();
+	void gotoNextState();
+	void gotoEndState();
 
 	QString makeTempFileName() const;       // result is saved to the temp file first
 	QString makeResultFileName() const;     // generate based on the user name
@@ -44,14 +48,11 @@ private:
 	TestPage*   currentPage;
 
 	QString     userName;       // for output
-	QString     tempFileName;
 	QFile       tempFile;
 	QTextStream os;
 
-	bool quitSafe;    // it's saft to quit before loading and after finishing
-	bool answered;    // are any questions answered. save the result if yes
-
 	TestLoader* loader;
+	TestState* state;
 };
 
 #endif // MAINWINDOW_H

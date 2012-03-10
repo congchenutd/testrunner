@@ -53,17 +53,11 @@ void TestPage::setAnswerArea(AnswerArea* answer)
 	answerArea = answer;
 	layout()->addWidget(answerArea);
 	layout()->addItem(new QSpacerItem(20, 40, QSizePolicy::Preferred, QSizePolicy::Expanding));
-	connect(answerArea, SIGNAL(validated(bool)), this, SIGNAL(valid(bool)));
+	connect(answerArea, SIGNAL(validated(AnswerStatus)), this, SIGNAL(statusChanged(AnswerStatus)));
 }
 
-bool TestPage::validate() const {
-	return maySkip ? accept(true) : accept(answerArea->validate());
-}
-
-bool TestPage::accept(bool ok) const
-{
-	emit valid(ok);
-	return ok;
+void TestPage::validate() {
+	emit statusChanged(maySkip ? IGNORED : answerArea->validate());
 }
 
 QVariant TestPage::getAnswer() const {
