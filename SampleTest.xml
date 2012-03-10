@@ -43,7 +43,7 @@
 		<question title = "Question 1: integer question">
 			<content>How many years' experience do you have with C++?</content>
 			<answer>
-				<integer min = "0" max = "100"></integer>
+				<integer min = "0" max = "100">Years = </integer>
 			</answer>
 		</question>
 		<question title = "Question 2: single choice">

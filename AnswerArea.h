@@ -70,8 +70,7 @@ class QSpinBox;
 class IntegerArea : public AnswerArea
 {
 public:
-	IntegerArea(QWidget* parent = 0);
-	void setValueRange(int min, int max);
+	IntegerArea(int min, int max, const QString& text, QWidget* parent = 0);
 
 	virtual QVariant getAnswer() const;
 	virtual void     setFocus();
