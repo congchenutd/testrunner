@@ -30,7 +30,7 @@ private slots:
 	void onTestStatus(AnswerStatus);
 
 private:
-	void setTestFile(const QString& fileName);
+	bool setTestFile(const QString& fileName);
 	void setPage(TestPage* page);           // change page
 	void saveCurrentPage();
 	void updateButtons();

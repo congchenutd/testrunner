@@ -124,23 +124,23 @@ TestPage* TestLoader::loadQuestion()
 
 	if(!xml.readNextStartElement() || xml.name() != "content")
 		return 0;
-	QString text = xml.readElementText();
-	if(text.isEmpty())
+	QString questionText = xml.readElementText();
+	if(questionText.isEmpty())
 		return 0;
 
-	if(!xml.readNextStartElement() || xml.name() != "answer")
-		return 0;
-	if(!xml.readNextStartElement())
-		return 0;
-
-	// prepare the page with the question and the answer area
-	TestPage* page = new TestPage(title, text);
+	// create the page with the question
+	TestPage* page = new TestPage(title, questionText);
 	page->setSkippable(maySkip);
 	page->setTimerEnabled(timeIt);
 	page->setIsName(isName);
 
-	QString pageName = xml.name().toString();
-	page->setAnswerArea(createAnswerAreaFactory(pageName)->load(xml));
+	// create the answer area of the page
+	if(!xml.readNextStartElement() || xml.name() != "answer")
+		return page;
+	if(!xml.readNextStartElement())
+		return page;
+	QString answerType = xml.name().toString();
+	page->setAnswerArea(createAnswerAreaFactory(answerType)->load(xml));
 	return page;
 }
 
