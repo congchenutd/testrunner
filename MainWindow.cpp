@@ -30,7 +30,7 @@ bool MainWindow::init(const QString& fileName)
 	os.setDevice(&tempFile);
 
 	if(!fileName.isEmpty())      // load test file
-		setTestFile(fileName);
+		return setTestFile(fileName);
 	return true;
 }
 
@@ -97,14 +97,14 @@ void MainWindow::onLoad()
 }
 
 // read the XML
-void MainWindow::setTestFile(const QString& fileName)
+bool MainWindow::setTestFile(const QString& fileName)
 {
 	// open file
 	xmlFile.setFileName(fileName);
 	if(!xmlFile.open(QFile::ReadOnly))
 	{
 		QMessageBox::critical(this, tr("Error"), tr("Cannot open the file"));
-		return;
+		return false;
 	}
 
 	// content correct
@@ -112,7 +112,9 @@ void MainWindow::setTestFile(const QString& fileName)
 	{
 		gotoNextState();
 		setPage(loader->loadNext());          // style and intro
+		return true;
 	}
+	return false;
 }
 
 void MainWindow::onNext()

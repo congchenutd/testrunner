@@ -14,7 +14,7 @@
    <string>TestRunner</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="TestRunner.qrc">
+   <iconset>
     <normaloff>:/Images/Test2.png</normaloff>:/Images/Test2.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -42,7 +42,7 @@
        <string>Please open a test.
 
 CongChen@utdallas.edu
-2012/3/8</string>
+2012/3/12</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
