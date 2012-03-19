@@ -23,12 +23,11 @@ class TestPage : public QWidget
 
 public:
 	TestPage(const QString& title, const QString& text,
-			 bool skip = false, bool timer = false, bool name = false);
+			 bool skip = false, bool name = false);
 
 	void setTitle(const QString& title);
 	void setText (const QString& text);
 	void setSkippable   (bool skip) { maySkip = skip; }
-	void setTimerEnabled(bool enable);
 	void setAnswerArea(AnswerArea* answer);
 	void setIsName (bool name) { isName = name; }
 	bool isNamePage() const    { return isName; }
@@ -44,14 +43,10 @@ public:
 signals:
 	void statusChanged(AnswerStatus);  // result of validate()
 
-private slots:
-	void onTimer();
-
 private:
 	QLabel* leTitle;
 	QLabel* leText;
 	bool maySkip;     // Is this page optional
-	int  elapsed;     // How long (seconds) was spent on this page
 	bool isName;
 	AnswerArea* answerArea;
 
