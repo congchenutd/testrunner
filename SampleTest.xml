@@ -68,7 +68,7 @@
 				</multiple>
 			</answer>
 		</question>
-		<question title = "Question 4: fill in the blank" timeit = "true">
+		<question title = "Question 4: fill in the blank">
 			<content>Name 3 of your mostly used IDEs?</content>
 			<answer>
 				<blank>
