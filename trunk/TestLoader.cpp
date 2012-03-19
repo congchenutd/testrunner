@@ -119,7 +119,6 @@ TestPage* TestLoader::loadQuestion()
 	// attributes of the question
 	QString title   = xml.attributes().value("title")  .toString();
 	bool    maySkip = xml.attributes().value("mayskip").toString() == "true";
-	bool    timeIt  = xml.attributes().value("timeit") .toString() == "true";
 	bool    isName  = xml.attributes().value("isname") .toString() == "true";
 
 	if(!xml.readNextStartElement() || xml.name() != "content")
@@ -131,7 +130,6 @@ TestPage* TestLoader::loadQuestion()
 	// create the page with the question
 	TestPage* page = new TestPage(title, questionText);
 	page->setSkippable(maySkip);
-	page->setTimerEnabled(timeIt);
 	page->setIsName(isName);
 
 	// create the answer area of the page

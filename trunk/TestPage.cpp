@@ -12,7 +12,7 @@ QFont TestPage::globalFont;
 QFont TestPage::titleFont;
 QFont TestPage::textFont;
 
-TestPage::TestPage(const QString& title, const QString& text, bool skip, bool timer, bool name)
+TestPage::TestPage(const QString& title, const QString& text, bool skip, bool name)
 {
 	QVBoxLayout* layout = new QVBoxLayout(this);
 	layout->setSizeConstraint(QLayout::SetFixedSize);
@@ -33,16 +33,13 @@ TestPage::TestPage(const QString& title, const QString& text, bool skip, bool ti
 
 	maySkip = skip;
 	isName  = name;
-	setTimerEnabled(timer);
 	answerArea = new DefaultAnswerArea;
 }
 
-QString TestPage::toString() const
-{
-	QString result = leTitle->text() + "\t" + getAnswer().toString();
-	if(elapsed > 0)
-		result += "\t" + tr("%1 seconds").arg(elapsed);
-	return result;
+QString TestPage::toString() const {
+	return leTitle->text()        + "\t" +
+		   getAnswer().toString() + "\t" +
+		   QTime::currentTime().toString("hh:mm:ss");
 }
 
 void TestPage::setAnswerArea(AnswerArea* answer)
@@ -64,10 +61,6 @@ QVariant TestPage::getAnswer() const {
 	return answerArea->getAnswer();
 }
 
-void TestPage::onTimer() {
-	elapsed ++;
-}
-
 void TestPage::setTitle(const QString& title)
 {
 	leTitle->setText(title);
@@ -78,15 +71,4 @@ void TestPage::setText(const QString& text)
 {
 	leText->setText(text);
 	leText->setHidden(text.isEmpty());     // empty text is hidden
-}
-
-void TestPage::setTimerEnabled(bool enable)
-{
-	elapsed = 0;
-	if(enable)
-	{
-		QTimer* timer = new QTimer(this);
-		connect(timer, SIGNAL(timeout()), this, SLOT(onTimer()));
-		timer->start(1000);
-	}
 }
