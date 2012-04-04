@@ -39,7 +39,7 @@ TestPage::TestPage(const QString& title, const QString& text, bool skip, bool na
 QString TestPage::toString() const {
 	return leTitle->text()        + "\t" +
 		   getAnswer().toString() + "\t" +
-		   QTime::currentTime().toString("hh:mm:ss");
+		   QDateTime::currentDateTime().toString("yyyy-MM-dd-hh:mm:ss");
 }
 
 void TestPage::setAnswerArea(AnswerArea* answer)
