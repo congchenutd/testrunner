@@ -7,17 +7,17 @@ int main(int argc, char *argv[])
 	QApplication app(argc, argv);
 	MainWindow mainWnd;
 
-	bool initResult = false;
+    bool loaded = false;
 	if(argc == 1) {
 		// Load TestRunner.xml if it is placed at the same directory
-		initResult = QFile::exists("TestRunner.xml") ? mainWnd.init("TestRunner.xml")
-													 : mainWnd.init();
+        loaded = QFile::exists("TestRunner.xml") ? mainWnd.init("TestRunner.xml")
+                                                 : mainWnd.init();
 	}
 	else {
-		initResult = mainWnd.init(argv[1]);
+        loaded = mainWnd.init(argv[1]);
 	}
 
-	if(initResult)
+    if(loaded)
 	{
 		mainWnd.show();
 		return app.exec();

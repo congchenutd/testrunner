@@ -48,6 +48,7 @@ private:
 	QLabel* leText;
 	bool maySkip;     // Is this page optional
 	bool isName;
+    QVBoxLayout* layout;
 	AnswerArea* answerArea;
 
 	static QFont globalFont;   // style

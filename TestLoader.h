@@ -25,7 +25,7 @@ private:
 	TestPage* loadSection();
 	TestPage* loadEndPage();
 	QFont     loadFont();
-	AnswerAreaFactory* createAnswerAreaFactory(const QString& factoryName);
+    AnswerAreaFactory* getAnswerAreaFactory(const QString& factoryName);
 
 private:
 	QXmlStreamReader xml;

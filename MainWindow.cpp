@@ -77,7 +77,7 @@ void MainWindow::closeEvent(QCloseEvent* event)
 			return event->ignore();   // quitting canceled
 	}
 
-	if(state->hasAnswered())                              // result is not empty
+    if(state->hasAnswered())                  // result is not empty
 		tempFile.copy(makeResultFileName());  // copy result
 	tempFile.remove();                        // remove temp
 	return QMainWindow::closeEvent(event);

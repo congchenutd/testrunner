@@ -14,16 +14,17 @@ QFont TestPage::textFont;
 
 TestPage::TestPage(const QString& title, const QString& text, bool skip, bool name)
 {
-	QVBoxLayout* layout = new QVBoxLayout(this);
-	layout->setSizeConstraint(QLayout::SetFixedSize);
-
+    layout = new QVBoxLayout(this);
 
 	leTitle = new QLabel;
 	leText  = new QLabel;
 	leTitle->setWordWrap(true);
 	leText ->setWordWrap(true);
-	layout->addWidget(leTitle);
-	layout->addWidget(leText);
+
+    layout->addWidget(leTitle);
+    layout->addWidget(leText);
+    layout->addStretch();
+
 	setTitle(title);
 	setText (text);
 
@@ -44,13 +45,12 @@ QString TestPage::toString() const {
 
 void TestPage::setAnswerArea(AnswerArea* answer)
 {
-	if(answer == 0)
-		return;
-	delete answerArea;
-	answerArea = answer;
-	layout()->addWidget(answerArea);
-	layout()->addItem(new QSpacerItem(20, 40, QSizePolicy::Preferred, QSizePolicy::Expanding));
-	connect(answerArea, SIGNAL(validated(AnswerStatus)), this, SIGNAL(statusChanged(AnswerStatus)));
+    if(answer == 0)
+        return;
+    delete answerArea;
+    answerArea = answer;
+    layout->insertWidget(2, answerArea);
+    connect(answerArea, SIGNAL(validated(AnswerStatus)), this, SIGNAL(statusChanged(AnswerStatus)));
 }
 
 void TestPage::validate() {
@@ -69,6 +69,6 @@ void TestPage::setTitle(const QString& title)
 
 void TestPage::setText(const QString& text)
 {
-	leText->setText(text);
-	leText->setHidden(text.isEmpty());     // empty text is hidden
+    leText->setText(text);
+    leText->setHidden(text.isEmpty());     // empty text is hidden
 }
