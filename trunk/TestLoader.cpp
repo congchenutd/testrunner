@@ -48,7 +48,7 @@ void TestLoader::loadStyle()
 	if(!xml.isStartElement() || xml.name() != "style")
 		return;
 
-	// till </style>
+    // untill </style>
 	while(!(xml.isEndElement() && xml.name() == "style")) {
 		if(xml.readNextStartElement())
 		{
@@ -138,7 +138,7 @@ TestPage* TestLoader::loadQuestion()
 	if(!xml.readNextStartElement())
 		return page;
 	QString answerType = xml.name().toString();
-	page->setAnswerArea(createAnswerAreaFactory(answerType)->load(xml));
+    page->setAnswerArea(getAnswerAreaFactory(answerType)->load(xml));
 	return page;
 }
 
@@ -149,7 +149,7 @@ TestPage *TestLoader::loadEndPage()
 						tr("Thank you for your cooperation! You may quit the test now."));
 }
 
-AnswerAreaFactory* TestLoader::createAnswerAreaFactory(const QString& factoryName)
+AnswerAreaFactory* TestLoader::getAnswerAreaFactory(const QString& factoryName)
 {
 	if(factoryName == "single")
 		return new SingleChoiceAreaFactory;
