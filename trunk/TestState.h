@@ -1,81 +1,85 @@
 #ifndef TESTSTATE_H
 #define TESTSTATE_H
 
+// Determine whether the actions are enabled and whether the app can quit
+// Each state knows what's the next state
+// MainWindow determines when to jump to the next state
 class TestState
 {
 public:
-	static TestState* init();
+    static TestState* getUninitState();
+    static TestState* getInitState();
+    static TestState* getLoadedState();
+    static TestState* getAnsweredState();
+    static TestState* getFinishedState();
 
-	TestState* gotoEnd() { return finishedState; }
-
-	virtual TestState* gotoNext() = 0;
-	virtual bool isQuitSafe()    const = 0;
-	virtual bool hasAnswered()   const = 0;
-	virtual bool isLoadEnabled() const = 0;
-	virtual bool isNextEnabled() const = 0;
-	virtual bool isQuitEnabled() const = 0;
-
-protected:
-	static TestState* initState;
-	static TestState* loadedState;
-	static TestState* answeredState;
-	static TestState* finishedState;
-	static TestState* nullState;
+    virtual TestState* next() = 0;
+    virtual bool isQuitSafe()    const = 0;
+    virtual bool hasAnswered()   const = 0;
+    virtual bool isLoadEnabled() const = 0;
+    virtual bool isNextEnabled() const = 0;
+    virtual bool isQuitEnabled() const = 0;
 };
 
+// before init
+class UninitState : public TestState
+{
+public:
+    TestState* next() { return getInitState(); }
+    bool isQuitSafe()    const { return true;  }
+    bool hasAnswered()   const { return false; }
+    bool isLoadEnabled() const { return true;  }
+    bool isNextEnabled() const { return true;  }
+    bool isQuitEnabled() const { return true;  }
+};
+
+// after the app is up
 class InitState : public TestState
 {
 public:
-	virtual TestState* gotoNext() { return loadedState; }
-	virtual bool isQuitSafe()    const { return true;  }
-	virtual bool hasAnswered()   const { return false; }
-	virtual bool isLoadEnabled() const { return true;  }
-	virtual bool isNextEnabled() const { return false; }
-	virtual bool isQuitEnabled() const { return true;  }
+    TestState* next() { return getLoadedState(); }
+    bool isQuitSafe()    const { return true;  }
+    bool hasAnswered()   const { return false; }
+    bool isLoadEnabled() const { return true;  }
+    bool isNextEnabled() const { return false; }
+    bool isQuitEnabled() const { return true;  }
 };
 
+// after the xml is loaded
 class LoadedState : public TestState
 {
 public:
-	virtual TestState* gotoNext() { return answeredState; }
-	virtual bool isQuitSafe()    const { return false; }
-	virtual bool hasAnswered()   const { return false; }
-	virtual bool isLoadEnabled() const { return false; }
-	virtual bool isNextEnabled() const { return true;  }
-	virtual bool isQuitEnabled() const { return false; }
+    TestState* next() { return getAnsweredState(); }
+    bool isQuitSafe()    const { return false; }
+    bool hasAnswered()   const { return false; }
+    bool isLoadEnabled() const { return false; }
+    bool isNextEnabled() const { return true;  }
+    bool isQuitEnabled() const { return false; }
 };
 
+// current question is answered
 class AnsweredState : public TestState
 {
 public:
-	virtual TestState* gotoNext() { return answeredState; }
-	virtual bool isQuitSafe()    const { return false; }
-	virtual bool hasAnswered()   const { return true;  }
-	virtual bool isLoadEnabled() const { return false; }
-	virtual bool isNextEnabled() const { return true;  }
-	virtual bool isQuitEnabled() const { return false; }
+    TestState* next() { return getAnsweredState(); }
+    bool isQuitSafe()    const { return false; }
+    bool hasAnswered()   const { return true;  }
+    bool isLoadEnabled() const { return false; }
+    bool isNextEnabled() const { return true;  }
+    bool isQuitEnabled() const { return false; }
 };
 
+// all questions are answered
 class FinishedState : public TestState
 {
 public:
-	virtual TestState* gotoNext() { return 0; }
-	virtual bool isQuitSafe()    const { return true;  }
-	virtual bool hasAnswered()   const { return true;  }
-	virtual bool isLoadEnabled() const { return false; }
-	virtual bool isNextEnabled() const { return false; }
-	virtual bool isQuitEnabled() const { return true;  }
+    TestState* next() { return getFinishedState(); }
+    bool isQuitSafe()    const { return true;  }
+    bool hasAnswered()   const { return true;  }
+    bool isLoadEnabled() const { return false; }
+    bool isNextEnabled() const { return false; }
+    bool isQuitEnabled() const { return true;  }
 };
 
-class NullState : public TestState
-{
-public:
-	virtual TestState* gotoNext() { return nullState; }
-	virtual bool isQuitSafe()    const { return true;  }
-	virtual bool hasAnswered()   const { return false; }
-	virtual bool isLoadEnabled() const { return true;  }
-	virtual bool isNextEnabled() const { return true;  }
-	virtual bool isQuitEnabled() const { return true;  }
-};
 
 #endif // TESTSTATE_H

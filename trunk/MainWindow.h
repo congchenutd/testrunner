@@ -16,30 +16,26 @@ class MainWindow : public QMainWindow
 
 public:
 	MainWindow(QWidget *parent = 0);
-	bool init(const QString& fileName = QString());
-
-	// called by loader
-	void setTitle(const QString& title);
+    bool init(const QString& fileName = QString());  // init and load if fileName is nonempty
 
 protected:
-	virtual void closeEvent(QCloseEvent*);
+    void closeEvent(QCloseEvent*);
 
 private slots:
-	void onLoad();
-	void onNext();
-	void onTestStatus(AnswerStatus);
+    void onLoad();                              // open a test file
+    void onNext();                              // next clicked
+    void onAnswered(AnswerStatus);              // answer changed
+    void onTitleChanged(const QString& title);  // a new section
 
 private:
-	bool setTestFile(const QString& fileName);
-	void setPage(TestPage* page);           // change page
+    bool openTestFile(const QString& fileName); // read the XML
+    void setPage(TestPage* page);               // change page
 	void saveCurrentPage();
-	void updateButtons();
-	void gotoInitState();
+    void updateButtons();                       // enable/disable buttons based on state
 	void gotoNextState();
-	void gotoEndState();
 
-	QString makeTempFileName() const;       // result is saved to the temp file first
-	QString makeResultFileName() const;     // generate based on the user name
+    QString makeTempFileName() const;           // result is saved to the temp file first
+    QString makeResultFileName() const;         // generate based on the user name
 
 private:
 	Ui::MainWindow ui;
@@ -48,11 +44,11 @@ private:
 	TestPage*   currentPage;
 
 	QString     userName;       // for output
-	QFile       tempFile;
+    QFile       tempFile;       // result is saved to the temp file first
 	QTextStream os;
 
 	TestLoader* loader;
-	TestState* state;
+    TestState*  state;          // controls button status, quit, and save
 };
 
 #endif // MAINWINDOW_H

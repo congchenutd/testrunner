@@ -4,10 +4,10 @@
 #include <QWidget>
 #include <QVariant>
 #include <QList>
+#include <QVBoxLayout>
 
 typedef enum {IGNORED, VALID, INVALID} AnswerStatus;
 
-class QVBoxLayout;
 class AnswerArea : public QWidget
 {
 	Q_OBJECT
@@ -17,25 +17,29 @@ public:
 	virtual QVariant getAnswer() const = 0;
 
 public slots:
-	virtual void showEvent(QShowEvent*);
-	virtual void setFocus() {}
-	virtual AnswerStatus validate() const;
+    virtual AnswerStatus validate() const;   // validate the answer
+
+protected:
+    virtual void showEvent(QShowEvent*);
+    virtual void grabFocus() = 0;
 
 signals:
 	void validated(AnswerStatus) const;
 
 protected:
-	QVBoxLayout* vLayout;
+    QVBoxLayout layout;
 };
 
+// An empty area
 class DefaultAnswerArea : public AnswerArea
 {
 public:
-	DefaultAnswerArea(QWidget* parent = 0) : AnswerArea(parent){}
+    DefaultAnswerArea(QWidget* parent = 0) : AnswerArea(parent) {}
 	virtual QVariant getAnswer() const { return QString(); }
+    virtual AnswerStatus validate() const { return IGNORED; }
 
 protected:
-	virtual AnswerStatus validate() const { return IGNORED; }
+    virtual void grabFocus() {}
 };
 
 class QRadioButton;
@@ -46,7 +50,9 @@ public:
 	void addChoice(const QString& choice);
 
 	virtual QVariant getAnswer() const;
-	virtual void     setFocus();
+
+protected:
+    virtual void grabFocus();
 
 private:
 	QList<QRadioButton*> radioButtons;
@@ -60,7 +66,9 @@ public:
 	void addChoice(const QString& choice);
 
 	virtual QVariant getAnswer() const;
-	virtual void     setFocus();
+
+protected:
+    virtual void grabFocus();
 
 private:
 	QList<QCheckBox*> checkBoxes;
@@ -73,7 +81,9 @@ public:
 	IntegerArea(int min, int max, const QString& text, QWidget* parent = 0);
 
 	virtual QVariant getAnswer() const;
-	virtual void     setFocus();
+
+protected:
+    virtual void grabFocus();
 
 private:
 	QSpinBox* spinBox;
@@ -86,8 +96,10 @@ public:
 	BlankFillingArea(QWidget* parent = 0) : AnswerArea(parent) {}
 	void addBlank(const QString& name);
 
-	virtual QVariant getAnswer() const;
-	virtual void     setFocus();
+    virtual QVariant getAnswer() const;
+
+protected:
+    virtual void grabFocus();
 
 private:
 	QList<QLineEdit*> lineEdits;

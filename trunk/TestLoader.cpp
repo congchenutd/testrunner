@@ -1,27 +1,29 @@
 #include "TestLoader.h"
 #include "TestPage.h"
 #include "TestPage.h"
-#include "MainWindow.h"
 #include "AnswerAreaFactory.h"
 #include <QApplication>
+#include <QFile>
 
 bool TestLoader::openXMLFile(QFile& xmlFile)
 {
 	xml.setDevice(&xmlFile);
+    end = false;
 	return xml.readNextStartElement() && xml.name() == "test";
 }
 
 bool TestLoader::atEnd() {
-	return xml.atEnd();
+    return end || xml.atEnd();
 }
 
-// A font section may contain family, weight and size
 QFont TestLoader::loadFont()
 {
 	QFont result = qApp->font();        // use system font by default
 	if(!xml.readNextStartElement() || xml.name() != "font")
 		return result;
 
+    // A font section may contain family, weight and size
+    // untill </font>
 	while(!(xml.isEndElement() && xml.name() == "font")) {
 		if(xml.readNextStartElement())
 		{
@@ -64,57 +66,51 @@ void TestLoader::loadStyle()
 
 TestPage* TestLoader::loadNext()
 {
-	while(!xml.atEnd())
-	{
-		if(xml.isStartElement())
-		{
-			if(xml.name() == "style")
-				loadStyle();                   // does not return
-			else if(xml.name() == "intro")
-				return loadIntro(tr("Introduction"));
-			if(xml.name() == "section")        // a new section
-				return loadSection();
-			else if(xml.name() == "question")  // next question in the same section
-				return loadQuestion();
-		}
-		xml.readNextStartElement();
-	}
-	return loadEndPage();
-}
-
-// a test or a section can have a introduction
-TestPage* TestLoader::loadIntro(const QString& title)
-{
-	if(!xml.isStartElement() || xml.name() != "intro")
-		return 0;
-
-	QString introText = xml.readElementText();
-	return introText.isEmpty() ? 0 : new TestPage(title, introText);
+    while(!atEnd()) {
+        if(xml.readNextStartElement())
+        {
+            if(xml.name() == "style")
+                loadStyle();                   // does not return a page
+            else if(xml.name() == "section")   // a new section
+                return loadSection();
+            else if(xml.name() == "question")  // next question in the same section
+                return loadQuestion();
+        }
+    }
+    return loadEndPage();
 }
 
 TestPage* TestLoader::loadSection()
 {
-	if(!xml.isStartElement() || xml.name() != "section")
-		return 0;
+    if(!xml.isStartElement() || xml.name() != "section")
+        return loadErrorPage(tr("There should be a section here!"));
 
-	QString title = xml.attributes().value("title").toString();
-	if(title.isEmpty())
-		title = tr("Section");
-	mainWindow->setTitle(title);
+    end = xml.attributes().value("end").toString() == "true";  // the last section
+    QString title = xml.attributes().value("title").toString();
+    if(title.isEmpty())
+        title = tr("Section");
+    emit titleChanged(title);
 
-	if(xml.readNextStartElement()) {
-		if(xml.name() == "intro")
-			return loadIntro(title);
-		else if(xml.name() == "question")
-			return loadQuestion();
-	}
-	return 0;
+    if(xml.readNextStartElement()) {
+        if(xml.name() == "intro")
+            return loadIntro(title);
+        else if(xml.name() == "question")  // if no intro, then load question
+            return loadQuestion();
+    }
+    return loadErrorPage(tr("Something wrong with this section!"));
+}
+
+TestPage* TestLoader::loadIntro(const QString& title)
+{
+	if(!xml.isStartElement() || xml.name() != "intro")
+        return loadErrorPage(tr("There should be an intro element here!"));
+    return new TestPage(title, xml.readElementText());
 }
 
 TestPage* TestLoader::loadQuestion()
 {
 	if(!xml.isStartElement() || xml.name() != "question")
-		return 0;
+        return loadErrorPage(tr("There should be a question here!"));
 
 	// attributes of the question
 	QString title   = xml.attributes().value("title")  .toString();
@@ -122,10 +118,10 @@ TestPage* TestLoader::loadQuestion()
 	bool    isName  = xml.attributes().value("isname") .toString() == "true";
 
 	if(!xml.readNextStartElement() || xml.name() != "content")
-		return 0;
+        return loadErrorPage(tr("There should be a content here!"));
 	QString questionText = xml.readElementText();
 	if(questionText.isEmpty())
-		return 0;
+        return loadErrorPage(tr("The question is empty!"));
 
 	// create the page with the question
 	TestPage* page = new TestPage(title, questionText);
@@ -138,26 +134,18 @@ TestPage* TestLoader::loadQuestion()
 	if(!xml.readNextStartElement())
 		return page;
 	QString answerType = xml.name().toString();
-    page->setAnswerArea(getAnswerAreaFactory(answerType)->load(xml));
+    page->setAnswerArea(AnswerAreaLoader::getLoader(answerType)->load(xml));
 	return page;
 }
 
-TestPage *TestLoader::loadEndPage()
+TestPage* TestLoader::loadEndPage()
 {
-	mainWindow->setTitle(tr("Finished"));
-	return new TestPage(tr("Finished"),
-						tr("Thank you for your cooperation! You may quit the test now."));
+    emit titleChanged(tr("Finished"));
+    return new TestPage(tr("Finished"), tr("You may quit now."));
 }
 
-AnswerAreaFactory* TestLoader::getAnswerAreaFactory(const QString& factoryName)
-{
-	if(factoryName == "single")
-		return new SingleChoiceAreaFactory;
-	else if(factoryName == "multiple")
-		return new MultipleChoiceAreaFactory;
-	else if(factoryName == "integer")
-		return new IntegerAreaFactory;
-	else if(factoryName == "blank")
-		return new BlankFillingAreaFactory;
-	return new DefaultAreaFactory;
+TestPage* TestLoader::loadErrorPage(const QString& msg) {
+    return new TestPage(tr("Error"), tr("Line %1: ").arg(xml.lineNumber()) + msg);
 }
+
+

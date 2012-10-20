@@ -1,18 +1,31 @@
 #include "TestState.h"
-#include "MainWindow.h"
 
-TestState* TestState::initState     = 0;
-TestState* TestState::loadedState   = 0;
-TestState* TestState::answeredState = 0;
-TestState* TestState::finishedState = 0;
-TestState* TestState::nullState     = 0;
-
-TestState* TestState::init()
+TestState *TestState::getUninitState()
 {
-	initState     = new InitState;
-	loadedState   = new LoadedState;
-	answeredState = new AnsweredState;
-	finishedState = new FinishedState;
-	nullState     = new NullState;
-	return initState;
+    static UninitState uninitState;
+    return &uninitState;
+}
+
+TestState* TestState::getInitState()
+{
+    static InitState initState;
+    return &initState;
+}
+
+TestState* TestState::getLoadedState()
+{
+    static LoadedState loadedState;
+    return &loadedState;
+}
+
+TestState* TestState::getAnsweredState()
+{
+    static AnsweredState answeredState;
+    return &answeredState;
+}
+
+TestState* TestState::getFinishedState()
+{
+    static FinishedState finishedState;
+    return &finishedState;
 }

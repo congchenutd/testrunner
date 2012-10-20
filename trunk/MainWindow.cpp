@@ -7,21 +7,23 @@
 #include <QDateTime>
 
 MainWindow::MainWindow(QWidget *parent) :
-	QMainWindow(parent), userName("UnkownParticipant")
+    QMainWindow(parent),
+    currentPage(TestPage::getNullPage()),
+    userName("UnkownParticipant"),
+    loader(new TestLoader(this)),
+    state(TestState::getUninitState())
 {
 	ui.setupUi(this);
-
-	currentPage = 0;
-	loader = new TestLoader(this);
 
 	connect(ui.actionLoad, SIGNAL(triggered()), this, SLOT(onLoad()));
 	connect(ui.actionNext, SIGNAL(triggered()), this, SLOT(onNext()));
 	connect(ui.actionQuit, SIGNAL(triggered()), this, SLOT(close()));
+    connect(loader, SIGNAL(titleChanged(QString)), this, SLOT(onTitleChanged(QString)));
 }
 
 bool MainWindow::init(const QString& fileName)
 {
-	gotoInitState();
+    gotoNextState();
 
 	// open the temp file
 	tempFile.setFileName(makeTempFileName());
@@ -29,12 +31,13 @@ bool MainWindow::init(const QString& fileName)
 		return false;
 	os.setDevice(&tempFile);
 
-	if(!fileName.isEmpty())      // load test file
-		return setTestFile(fileName);
+    // load test file
+    if(!fileName.isEmpty())
+        return openTestFile(fileName);
 	return true;
 }
 
-void MainWindow::setTitle(const QString& title) {
+void MainWindow::onTitleChanged(const QString& title) {
 	setWindowTitle(tr("Test Runner - ") + title);
 }
 
@@ -45,21 +48,9 @@ void MainWindow::updateButtons()
 	ui.actionQuit->setVisible(state->isQuitEnabled());
 }
 
-void MainWindow::gotoInitState()
-{
-	state = TestState::init();
-	updateButtons();
-}
-
 void MainWindow::gotoNextState()
 {
-	state = state->gotoNext();
-	updateButtons();
-}
-
-void MainWindow::gotoEndState()
-{
-	state = state->gotoEnd();
+    state = loader->atEnd() ? state->getFinishedState() : state->next();
 	updateButtons();
 }
 
@@ -71,7 +62,7 @@ void MainWindow::closeEvent(QCloseEvent* event)
 			QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes)
 		{
 			saveCurrentPage();        // don't forget current page
-			os << "\r\nUnfinished";   // Mark "Unfinished"
+            os << "\r\nUnfinished";   // mark "Unfinished"
 		}
 		else
 			return event->ignore();   // quitting canceled
@@ -84,21 +75,22 @@ void MainWindow::closeEvent(QCloseEvent* event)
 
 }
 
-// open a file dialog for an XML file
 void MainWindow::onLoad()
 {
 	QString fileName = QFileDialog::getOpenFileName(
 						   this, tr("Open test configuration"),
 						   QDir::currentPath(), tr("Tests (*.xml);;All files (*.*)"));
-
 	activateWindow();             // re-gain focus after the file dialog
-	if(!fileName.isEmpty())
-		setTestFile(fileName);
+
+    if(!fileName.isEmpty())
+        openTestFile(fileName);
 }
 
-// read the XML
-bool MainWindow::setTestFile(const QString& fileName)
+bool MainWindow::openTestFile(const QString& fileName)
 {
+    if(fileName.isEmpty())
+        return false;
+
 	// open file
 	xmlFile.setFileName(fileName);
 	if(!xmlFile.open(QFile::ReadOnly))
@@ -107,11 +99,10 @@ bool MainWindow::setTestFile(const QString& fileName)
 		return false;
 	}
 
-	// content correct
+    // is content correct?
 	if(loader->openXMLFile(xmlFile))
 	{
-		gotoNextState();
-		setPage(loader->loadNext());          // style and intro
+        onNext();      // load style and intro
 		return true;
 	}
 	return false;
@@ -120,15 +111,13 @@ bool MainWindow::setTestFile(const QString& fileName)
 void MainWindow::onNext()
 {
 	setPage(loader->loadNext());          // load a section or question
-
-	if(loader->atEnd())                   // end of xml
-		gotoEndState();
+    gotoNextState();
 }
 
-void MainWindow::onTestStatus(AnswerStatus status)
+void MainWindow::onAnswered(AnswerStatus status)
 {
 	ui.actionNext->setEnabled(status != INVALID);  // IGNORED or VALID
-	if(status == VALID)
+    if(status == VALID)                            // IGNORED doesn't change state
 		gotoNextState();
 }
 
@@ -138,27 +127,22 @@ void MainWindow::setPage(TestPage* page)
 		return;
 
 	// save and remove the old page
-	if(currentPage != 0)
-	{
-		saveCurrentPage();
-		delete currentPage;
-	}
+    saveCurrentPage();
+    delete currentPage;
 
 	// set new page
 	currentPage = page;
 	setCentralWidget(page);
-
-	connect(currentPage, SIGNAL(statusChanged(AnswerStatus)), this, SLOT(onTestStatus(AnswerStatus)));
-	currentPage->validate();    // will enable/disable the "Next" button
+    connect(page, SIGNAL(validated(AnswerStatus)), this, SLOT(onAnswered(AnswerStatus)));
+    currentPage->validate();    // init the "Next" button
 }
 
-void MainWindow::saveCurrentPage() {
-	if(currentPage != 0)
-	{
-		os << currentPage->toString() << "\r\n";
-		if(currentPage->isNamePage() && !currentPage->getAnswer().isNull())
-			userName = currentPage->getAnswer().toString();   // save user name
-	}
+void MainWindow::saveCurrentPage()
+{
+    os << currentPage->toString();
+    os.flush();
+    if(currentPage->isNamePage() && !currentPage->getAnswer().isNull())
+        userName = currentPage->getAnswer().toString();   // save user name
 }
 
 QString MainWindow::makeTempFileName() const {

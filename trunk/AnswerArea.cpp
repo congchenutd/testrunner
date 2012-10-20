@@ -1,36 +1,35 @@
 #include "AnswerArea.h"
 #include <QRadioButton>
-#include <QVBoxLayout>
 #include <QCheckBox>
 #include <QSpinBox>
 #include <QLineEdit>
 #include <QLabel>
 
-AnswerArea::AnswerArea(QWidget* parent) : QWidget(parent)
+AnswerArea::AnswerArea(QWidget* parent)
+    : QWidget(parent), layout(this)
 {
-	vLayout = new QVBoxLayout(this);
-	setLayout(vLayout);
+    setLayout(&layout);
 }
 
 AnswerStatus AnswerArea::validate() const
 {
-	bool valid = !getAnswer().isNull();
+    bool valid = !getAnswer().isNull();
 	AnswerStatus result = valid ? VALID : INVALID;
-	emit validated(result);
-	return result;
+    emit validated(result);
+    return result;
 }
 
 void AnswerArea::showEvent(QShowEvent* event)
 {
 	QWidget::showEvent(event);
-	setFocus();   // automatically grab focus
+    grabFocus();   // automatically grab focus
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 void SingleChoiceArea::addChoice(const QString& choice)
 {
 	QRadioButton* radio = new QRadioButton(choice, this);
-	vLayout->addWidget(radio);
+    layout.addWidget(radio);
 	radioButtons << radio;
 	connect(radio, SIGNAL(clicked()), this, SLOT(validate()));   // auto validate
 }
@@ -43,7 +42,7 @@ QVariant SingleChoiceArea::getAnswer() const
 	return QVariant();
 }
 
-void SingleChoiceArea::setFocus() {
+void SingleChoiceArea::grabFocus() {
 	if(!radioButtons.isEmpty())   // focus on the first choice
 		radioButtons.front()->setFocus();
 }
@@ -52,7 +51,7 @@ void SingleChoiceArea::setFocus() {
 void MultipleChoiceArea::addChoice(const QString &choice)
 {
 	QCheckBox* checkBox = new QCheckBox(choice, this);
-	vLayout->addWidget(checkBox);
+    layout.addWidget(checkBox);
 	checkBoxes << checkBox;
 	connect(checkBox, SIGNAL(clicked()), this, SLOT(validate()));  // auto validate
 }
@@ -66,7 +65,7 @@ QVariant MultipleChoiceArea::getAnswer() const
 	return result.isEmpty() ? QVariant() : result.join("\t");
 }
 
-void MultipleChoiceArea::setFocus() {
+void MultipleChoiceArea::grabFocus() {
 	if(!checkBoxes.isEmpty())   // focus on the first choice
 		checkBoxes.front()->setFocus();
 }
@@ -80,14 +79,14 @@ IntegerArea::IntegerArea(int min, int max, const QString& text, QWidget* parent)
 	spinBox->setMinimum(min);
 	spinBox->setMaximum(max);
 	hLayout->addWidget(spinBox);
-	vLayout->addLayout(hLayout);
+    layout.addLayout(hLayout);
 }
 
 QVariant IntegerArea::getAnswer() const {
 	return spinBox->value();
 }
 
-void IntegerArea::setFocus()
+void IntegerArea::grabFocus()
 {
 	spinBox->setFocus();
 	spinBox->selectAll();
@@ -103,19 +102,19 @@ void BlankFillingArea::addBlank(const QString& name)
 	connect(lineEdit, SIGNAL(textEdited(QString)), this, SLOT(validate())); // auto validate
 
 	lineEdits << lineEdit;
-	vLayout->addLayout(hLayout);
+    layout.addLayout(hLayout);
 }
 
 QVariant BlankFillingArea::getAnswer() const
 {
 	QStringList result;
 	foreach(QLineEdit* edit, lineEdits)
-		if(!edit->text().isEmpty())
+        if(!edit->text().simplified().isEmpty())
 			result << edit->text();
 	return result.isEmpty() ? QVariant() : result.join("\t");
 }
 
-void BlankFillingArea::setFocus() {
+void BlankFillingArea::grabFocus() {
 	if(!lineEdits.isEmpty())
 		lineEdits.front()->setFocus();
 }
