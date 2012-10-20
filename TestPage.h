@@ -3,10 +3,8 @@
 
 #include <QWidget>
 #include <QVariant>
-#include <QList>
 #include <QLabel>
-#include <QFont>
-#include <QTime>
+#include <QVBoxLayout>
 #include "AnswerArea.h"
 
 class QRadioButton;
@@ -23,32 +21,33 @@ class TestPage : public QWidget
 
 public:
 	TestPage(const QString& title, const QString& text,
-			 bool skip = false, bool name = false);
+             bool skip = true, bool name = false);
 
 	void setTitle(const QString& title);
 	void setText (const QString& text);
-	void setSkippable   (bool skip) { maySkip = skip; }
+    void setSkippable(bool skip) { maySkip = skip; }
 	void setAnswerArea(AnswerArea* answer);
 	void setIsName (bool name) { isName = name; }
 	bool isNamePage() const    { return isName; }
+    void validate();                 // validate the answer
 
 	QString  toString() const;
 	QVariant getAnswer() const;
-	void validate();                 // validate the answer
 
 	static void setGlobalFont(const QFont& font) { globalFont = font; }
 	static void setTitleFont (const QFont& font) { titleFont  = font; }
 	static void setTextFont  (const QFont& font) { textFont   = font; }
+    static TestPage* getNullPage();    // a null page
 
 signals:
-	void statusChanged(AnswerStatus);  // result of validate()
+    void validated(AnswerStatus);   // result of validate()
 
 private:
-	QLabel* leTitle;
-	QLabel* leText;
-	bool maySkip;     // Is this page optional
-	bool isName;
-    QVBoxLayout* layout;
+    QLabel leTitle;
+    QLabel leText;
+    bool maySkip;              // is this page optional?
+    bool isName;               // is this page for username?
+    QVBoxLayout layout;
 	AnswerArea* answerArea;
 
 	static QFont globalFont;   // style

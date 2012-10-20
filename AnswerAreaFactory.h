@@ -6,46 +6,49 @@
 class AnswerArea;
 class QXmlStreamReader;
 
-class AnswerAreaFactory : public QObject
+// build answerarea from xml
+class AnswerAreaLoader : public QObject
 {
 public:
-	AnswerAreaFactory(QObject* parent = 0) :QObject(parent) {}
-	virtual ~AnswerAreaFactory() {}
+	AnswerAreaLoader(QObject* parent = 0) :QObject(parent) {}
+	virtual ~AnswerAreaLoader() {}
 	virtual AnswerArea* load(QXmlStreamReader& xml) = 0;
+
+    static AnswerAreaLoader* getLoader(const QString& name);   // a simple factory
 };
 
-class DefaultAreaFactory : public AnswerAreaFactory
+class DefaultAreaLoader : public AnswerAreaLoader
 {
 public:
-	DefaultAreaFactory(QObject* parent = 0) :AnswerAreaFactory(parent) {}
+    DefaultAreaLoader(QObject* parent = 0) :AnswerAreaLoader(parent) {}
 	virtual AnswerArea* load(QXmlStreamReader& xml);
 };
 
-class SingleChoiceAreaFactory : public AnswerAreaFactory
+class SingleChoiceAreaLoader : public AnswerAreaLoader
 {
 public:
-	SingleChoiceAreaFactory(QObject* parent = 0) :AnswerAreaFactory(parent) {}
+    SingleChoiceAreaLoader(QObject* parent = 0) :AnswerAreaLoader(parent) {}
 	virtual AnswerArea* load(QXmlStreamReader& xml);
 };
 
-class MultipleChoiceAreaFactory : public AnswerAreaFactory
+class MultipleChoiceAreaLoader : public AnswerAreaLoader
 {
 public:
-	MultipleChoiceAreaFactory(QObject* parent = 0) :AnswerAreaFactory(parent) {}
+    MultipleChoiceAreaLoader(QObject* parent = 0) :AnswerAreaLoader(parent) {}
 	virtual AnswerArea* load(QXmlStreamReader& xml);
 };
 
-class IntegerAreaFactory : public AnswerAreaFactory
+class IntegerAreaLoader : public AnswerAreaLoader
 {
 public:
-	IntegerAreaFactory(QObject* parent = 0) :AnswerAreaFactory(parent) {}
+    IntegerAreaLoader(QObject* parent = 0) :AnswerAreaLoader(parent) {}
 	virtual AnswerArea* load(QXmlStreamReader& xml);
 };
 
-class BlankFillingAreaFactory : public AnswerAreaFactory
+class BlankFillingAreaLoader : public AnswerAreaLoader
 {
 public:
-	BlankFillingAreaFactory(QObject* parent = 0) :AnswerAreaFactory(parent) {}
+    BlankFillingAreaLoader(QObject* parent = 0) :AnswerAreaLoader(parent) {}
 	virtual AnswerArea* load(QXmlStreamReader& xml);
 };
 

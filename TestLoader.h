@@ -5,31 +5,35 @@
 #include <QXmlStreamReader>
 
 class TestPage;
-class MainWindow;
 class QFile;
-class AnswerAreaFactory;
+class AnswerAreaLoader;
 
 // Parse the xml file and create pages
 class TestLoader : public QObject
 {
+    Q_OBJECT
+
 public:
-	TestLoader(MainWindow* mainWnd) : mainWindow(mainWnd) {}
+    TestLoader(QObject* parent = 0) : QObject(parent), end(false) {}
 	bool      openXMLFile(QFile& fileName);
-	bool      atEnd();
-	TestPage* loadNext();                        // next element
-	TestPage* loadQuestion();
+    bool      atEnd();         // at the end of xml or seen the "end" section
+    TestPage* loadNext();      // next xml element
 
 private:
 	void      loadStyle();
-	TestPage* loadIntro(const QString& title);   // intro of a section or test
-	TestPage* loadSection();
-	TestPage* loadEndPage();
-	QFont     loadFont();
-    AnswerAreaFactory* getAnswerAreaFactory(const QString& factoryName);
+    QFont     loadFont();
+    TestPage* loadSection();
+    TestPage* loadIntro(const QString& title);   // intro of a section
+    TestPage* loadQuestion();
+    TestPage* loadEndPage();     // the default end page if xml doesn't have one
+    TestPage* loadErrorPage(const QString& msg);
+
+signals:
+    void titleChanged(const QString&);
 
 private:
 	QXmlStreamReader xml;
-	MainWindow* mainWindow;
+    bool end;                // seen the "end" section?
 };
 
 #endif // TESTLOADER_H
