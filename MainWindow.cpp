@@ -80,7 +80,7 @@ void MainWindow::onLoad()
 	QString fileName = QFileDialog::getOpenFileName(
 						   this, tr("Open test configuration"),
 						   QDir::currentPath(), tr("Tests (*.xml);;All files (*.*)"));
-	activateWindow();             // re-gain focus after the file dialog
+    activateWindow();             // re-gain focus after the file dialog
 
     if(!fileName.isEmpty())
         openTestFile(fileName);
@@ -102,6 +102,10 @@ bool MainWindow::openTestFile(const QString& fileName)
     // is content correct?
 	if(loader->openXMLFile(xmlFile))
 	{
+        // stay on top
+        setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
+        show();
+
         onNext();      // load style and intro
 		return true;
 	}
@@ -128,11 +132,12 @@ void MainWindow::setPage(TestPage* page)
 
 	// save and remove the old page
     saveCurrentPage();
-    delete currentPage;
+    TestPage* tobeDeleted = currentPage;
 
 	// set new page
 	currentPage = page;
 	setCentralWidget(page);
+    delete tobeDeleted;
     connect(page, SIGNAL(validated(AnswerStatus)), this, SLOT(onAnswered(AnswerStatus)));
     currentPage->validate();    // init the "Next" button
 }
